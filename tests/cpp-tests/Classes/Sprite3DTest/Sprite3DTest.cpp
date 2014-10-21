@@ -1550,11 +1550,11 @@ std::string Sprite3DWithAABBTest::subtitle() const
 
 void Sprite3DWithAABBTest::addNewSpriteWithCoords( Vec2 p )
 {
-    std::string fileName = "Sprite3DTest/orc.c3b";
+    std::string fileName = "Sprite3DTest/ReskinGirl.c3b";
     _sprite3D = Sprite3D::create(fileName);
-    _sprite3D->setScale(3.0f);
+    _sprite3D->setScale(0.1f);
     _sprite3D->setPosition(p);
-    auto animation = Animation3D::create(fileName, "sdfsdfsdf");
+    auto animation = Animation3D::create(fileName, "Take 001");
     if (animation)
     {
         auto animate = Animate3D::create(animation);

@@ -321,6 +321,25 @@ protected:
     cocos2d::Sprite3D* _mirrorSprite;
 };
 
+class Sprite3DWithAABBTest : public Sprite3DTestDemo
+{
+public:
+    CREATE_FUNC(Sprite3DWithAABBTest);
+    Sprite3DWithAABBTest();
+    virtual std::string title() const override;
+    virtual std::string subtitle() const override;
+
+    virtual void update(float dt) override;
+
+    void addNewSpriteWithCoords(Vec2 p);
+    void setDebugDraw();
+
+protected:
+    
+    Sprite3D *_sprite3D;
+    DrawNode3D *_debugDraw;
+};
+
 class Sprite3DTestScene : public TestScene
 {
 public:

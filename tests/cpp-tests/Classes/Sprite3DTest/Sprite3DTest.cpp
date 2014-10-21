@@ -62,7 +62,8 @@ static std::function<Layer*()> createFunctions[] =
     CL(AttachmentTest),
     CL(Sprite3DReskinTest),
     CL(Sprite3DWithOBBPerfromanceTest),
-    CL(Sprite3DMirrorTest)
+    CL(Sprite3DMirrorTest),
+    CL(Sprite3DWithAABBTest)
 };
 
 #define MAX_LAYER    (sizeof(createFunctions) / sizeof(createFunctions[0]))
@@ -1527,4 +1528,55 @@ void Sprite3DMirrorTest::addNewSpriteWithCoords(Vec2 p)
         sprite->runAction(RepeatForever::create(animate));
     }
     _mirrorSprite = sprite;
+}
+
+Sprite3DWithAABBTest::Sprite3DWithAABBTest()
+{
+    auto s = Director::getInstance()->getWinSize();
+    addNewSpriteWithCoords( Vec2(s.width/2, s.height/2) );
+    setDebugDraw();
+    scheduleUpdate();
+}
+
+std::string Sprite3DWithAABBTest::title() const 
+{
+    return "Sprite3D AABB Test";
+}
+
+std::string Sprite3DWithAABBTest::subtitle() const 
+{
+    return "";
+}
+
+void Sprite3DWithAABBTest::addNewSpriteWithCoords( Vec2 p )
+{
+    std::string fileName = "Sprite3DTest/orc.c3b";
+    _sprite3D = Sprite3D::create(fileName);
+    _sprite3D->setScale(3.0f);
+    _sprite3D->setPosition(p);
+    auto animation = Animation3D::create(fileName, "sdfsdfsdf");
+    if (animation)
+    {
+        auto animate = Animate3D::create(animation);
+        _sprite3D->runAction(RepeatForever::create(animate));
+    }
+
+    addChild(_sprite3D);
+}
+
+void Sprite3DWithAABBTest::setDebugDraw()
+{
+    _debugDraw = DrawNode3D::create();
+    addChild(_debugDraw);
+}
+
+void Sprite3DWithAABBTest::update( float dt )
+{
+    _debugDraw->clear();
+
+    _sprite3D->setRotation3D(Vec3(0.0f, 50.0f * dt, 0.0f) + _sprite3D->getRotation3D());
+    const AABB &aabb = _sprite3D->getAABB();
+    Vec3 corners[8];
+    aabb.getCorners(corners);
+    _debugDraw->drawCube(corners, Color4F(0.0f, 1.0f, 0.0f, 1.0f));
 }

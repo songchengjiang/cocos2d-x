@@ -364,6 +364,8 @@ protected:
 
     void prepared();
     void unPrepared();
+    void asyncUpdate(float elapsedTime);
+    void asyncUpdateCallback(void *param);
     void preUpdator(float elapsedTime);
     void updator(float elapsedTime);
     void postUpdator(float elapsedTime);
@@ -426,6 +428,8 @@ protected:
     Quaternion                          _latestOrientation;
 
     PUParticleSystem3D *                _parentParticleSystem;
+
+    std::mutex                          _updateMutex;
 };
 
 NS_CC_END

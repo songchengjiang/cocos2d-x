@@ -37,6 +37,7 @@
 #include "extensions/Particle3D/PU/CCPUObserverManager.h"
 #include "extensions/Particle3D/PU/CCPUBehaviour.h"
 #include "platform/CCFileUtils.h"
+#include "base/CCAsyncTaskPool.h"
 
 NS_CC_BEGIN
 
@@ -345,6 +346,7 @@ void PUParticleSystem3D::startParticleSystem()
 
 void PUParticleSystem3D::stopParticleSystem()
 {
+    std::unique_lock<std::mutex> lock(_updateMutex);
     if (_state != State::STOP)
     {
         _state = State::STOP;
@@ -360,6 +362,7 @@ void PUParticleSystem3D::stopParticleSystem()
 
 void PUParticleSystem3D::pauseParticleSystem()
 {
+    std::unique_lock<std::mutex> lock(_updateMutex);
     if (_state == State::RUNNING)
     {
         //if (_emitter)
@@ -391,6 +394,7 @@ void PUParticleSystem3D::pauseParticleSystem()
 
 void PUParticleSystem3D::resumeParticleSystem()
 {
+    std::unique_lock<std::mutex> lock(_updateMutex);
     if (_state == State::PAUSE)
     {
         //if (_emitter)
@@ -443,10 +447,7 @@ void PUParticleSystem3D::forceUpdate( float delta )
     prepared();
 
     if (!_emitters.empty()){
-        emitParticles(delta);
-        preUpdator(delta);
-        updator(delta);
-        postUpdator(delta);
+        asyncUpdate(delta);
     }
 
     Vec3 currentPos = getDerivedPosition();
@@ -595,7 +596,23 @@ void PUParticleSystem3D::unPrepared()
     }
 }
 
-void PUParticleSystem3D::preUpdator( float elapsedTime )
+void cocos2d::PUParticleSystem3D::asyncUpdate(float elapsedTime)
+{
+    AsyncTaskPool::getInstance()->enqueue(AsyncTaskPool::TaskType::TASK_OTHER, CC_CALLBACK_1(PUParticleSystem3D::asyncUpdateCallback, this), nullptr, [=]{
+        std::unique_lock<std::mutex> lock(_updateMutex);
+        emitParticles(elapsedTime);
+        preUpdator(elapsedTime);
+        updator(elapsedTime);
+        postUpdator(elapsedTime);
+    });
+}
+
+void cocos2d::PUParticleSystem3D::asyncUpdateCallback(void *param)
+{
+
+}
+
+void PUParticleSystem3D::preUpdator(float elapsedTime)
 {
     //if (_emitter && _emitter->isEnabled())
     //{
@@ -1165,6 +1182,7 @@ void PUParticleSystem3D::removeAllListener()
 
 void PUParticleSystem3D::draw( Renderer *renderer, const Mat4 &transform, uint32_t flags )
 {
+    std::unique_lock<std::mutex> lock(_updateMutex);
     if (getAliveParticleCount() <= 0) return;
     if (_render)
         _render->render(renderer, transform, this);

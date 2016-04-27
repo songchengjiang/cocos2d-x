@@ -23,19 +23,27 @@
  
  ****************************************************************************/
 
-#ifndef _CCVRCARDBOARD_H__
-#define _CCVRCARDBOARD_H__
+#ifndef _CCHEADTRACKING_H__
+#define _CCHEADTRACKING_H__
+#include "base/ccTypes.h"
 #include "vr/CCVRProtocol.h"
 
 NS_CC_BEGIN
 
-class CC_DLL VRCardboard : public VRProtocol
+class CC_DLL HeadTracking : public Ref
 {
 public:
     
-    VRCardboard();
-    virtual ~VRCardboard();
+    HeadTracking(VRProtocol *vrProtocol);
+    ~HeadTracking();
     
+    void startTracking();
+    void endTracking();
+    bool getHeadPose(Vec3 &pos, Quaternion &rot);
+    
+protected:
+    
+    VRProtocol *_vrProtocol;
 };
 
 NS_CC_END

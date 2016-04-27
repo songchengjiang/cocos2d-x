@@ -23,8 +23,38 @@
  
  ****************************************************************************/
 
-#include "vr/CCVRCardboard.h"
+#ifndef _CCVRRENDERER_H__
+#define _CCVRRENDERER_H__
+#include "base/ccTypes.h"
+#include "renderer/CCRenderer.h"
+#include "vr/CCVRProtocol.h"
 
 NS_CC_BEGIN
 
+class CC_DLL VRRenderer : public Renderer
+{
+public:
+    
+    enum EyeType{
+        LEFT_EYE  = 0,
+        RIGHT_EYE = 1,
+        EYE_COUNT = 2,
+    };
+    
+    VRRenderer(VRProtocol *vrProtocol);
+    virtual ~VRRenderer();
+    
+    virtual void render() override;
+    
+    virtual void startRender() override;
+    virtual void endRender() override;
+    
+protected:
+    
+    VRProtocol *_vrProtocol;
+};
+
 NS_CC_END
+
+
+#endif

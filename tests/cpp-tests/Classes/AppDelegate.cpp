@@ -178,6 +178,8 @@ bool AppDelegate::applicationDidFinishLaunching()
     console->listenOnTCP(5678);
 
     _testController = TestController::getInstance();
+
+    glview->setVREnabled(true);
     
     return true;
 }

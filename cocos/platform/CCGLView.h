@@ -86,6 +86,10 @@ struct GLContextAttrs
 
 NS_CC_BEGIN
 
+class Scene;
+class Renderer;
+class VRProtocol;
+
 /**
  * @addtogroup platform
  * @{
@@ -384,6 +388,18 @@ public:
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_MAC)
     virtual id getCocoaWindow() = 0;
 #endif /* (CC_TARGET_PLATFORM == CC_PLATFORM_MAC) */
+
+    /**
+     * Renders a Scene with a Renderer
+     * This method is called dirctly by the Director
+     */
+    void renderScene(Scene* scene, Renderer* renderer);
+
+    /**
+     * Whether or not to enable VR renderering
+     */
+    void setVREnabled(bool enabled);
+    bool isVREnabled() const;
     
 protected:
     void updateDesignResolutionSize();
@@ -402,6 +418,10 @@ protected:
     float _scaleX;
     float _scaleY;
     ResolutionPolicy _resolutionPolicy;
+
+    // VR stuff
+    bool _vrEnabled;
+    VRProtocol* _vrImpl;
 };
 
 // end of platform group

@@ -134,7 +134,7 @@ public:
     /**Constructor.*/
     Renderer();
     /**Destructor.*/
-    ~Renderer();
+    virtual ~Renderer();
 
     //TODO: manage GLView inside Render itself
     void initGLView();
@@ -155,7 +155,10 @@ public:
     int createRenderQueue();
 
     /** Renders into the GLView all the queued `RenderCommand` objects */
-    void render();
+    virtual void render();
+    
+    virtual void startRender(){}
+    virtual void endRender(){}
 
     /** Cleans all `RenderCommand`s in the queue */
     void clean();

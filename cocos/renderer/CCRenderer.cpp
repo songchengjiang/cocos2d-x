@@ -614,6 +614,11 @@ void Renderer::render()
 
     //TODO: setup camera or MVP
     _isRendering = true;
+    if (Camera::getVisitingCamera()){
+        Director::getInstance()->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION);
+        Director::getInstance()->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION, Camera::getVisitingCamera()->getViewProjectionMatrix());
+    }
+
     
     if (_glViewAssigned)
     {
@@ -626,6 +631,9 @@ void Renderer::render()
         visitRenderQueue(_renderGroups[0]);
     }
     clean();
+    
+    if (Camera::getVisitingCamera())
+        Director::getInstance()->popMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION);
     _isRendering = false;
 }
 

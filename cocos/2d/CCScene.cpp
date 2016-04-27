@@ -201,11 +201,6 @@ void Scene::render(Renderer* renderer)
             defaultCamera = Camera::_visitingCamera;
         }
         
-        director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION);
-        director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION, Camera::_visitingCamera->getViewProjectionMatrix());
-        camera->apply();
-        //clear background with max depth
-        camera->clearBackground();
         //visit the scene
         visit(renderer, transform, 0);
 #if CC_USE_NAVMESH
@@ -215,19 +210,20 @@ void Scene::render(Renderer* renderer)
         }
 #endif
         
-        renderer->render();
+        camera->apply();
+        //clear background with max depth
+        camera->clearBackground();
         
-        director->popMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION);
+
+        renderer->render();
     }
     
 #if CC_USE_3D_PHYSICS && CC_ENABLE_BULLET_INTEGRATION
     if (_physics3DWorld && _physics3DWorld->isDebugDrawEnabled())
     {
-        director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION);
-        director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION, _physics3dDebugCamera != nullptr ? _physics3dDebugCamera->getViewProjectionMatrix() : defaultCamera->getViewProjectionMatrix());
         _physics3DWorld->debugDraw(renderer);
+        Camera::_visitingCamera = _physics3dDebugCamera != nullptr ? _physics3dDebugCamera: defaultCamera;
         renderer->render();
-        director->popMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION);
     }
 #endif
 

@@ -61,6 +61,7 @@ THE SOFTWARE.
 #include "base/CCConfiguration.h"
 #include "base/CCAsyncTaskPool.h"
 #include "platform/CCApplication.h"
+#include "vr/CCVRRenderer.cpp"
 
 #if CC_ENABLE_SCRIPT_BINDING
 #include "base/CCScriptSupport.h"
@@ -171,6 +172,7 @@ bool Director::init(void)
     initMatrixStack();
 
     _renderer = new (std::nothrow) Renderer;
+//    _renderer = new (std::nothrow) VRRenderer(vrProtocol);
     RenderState::initialize();
 
     return true;
@@ -289,6 +291,7 @@ void Director::drawScene()
 
     pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
     
+    _renderer->startRender();
     if (_runningScene)
     {
 #if (CC_USE_PHYSICS || (CC_USE_3D_PHYSICS && CC_ENABLE_BULLET_INTEGRATION) || CC_USE_NAVMESH)
@@ -314,6 +317,8 @@ void Director::drawScene()
         showStats();
     }
     _renderer->render();
+    
+    _renderer->endRender();
 
     _eventDispatcher->dispatchEvent(_eventAfterDraw);
 

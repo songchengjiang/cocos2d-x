@@ -5596,6 +5596,19 @@
 		B6DD2FF61B04825B00E47F5F /* fastlz.c in Sources */ = {isa = PBXBuildFile; fileRef = B6DD2FA51B04825B00E47F5F /* fastlz.c */; };
 		B6DD2FF71B04825B00E47F5F /* fastlz.h in Headers */ = {isa = PBXBuildFile; fileRef = B6DD2FA61B04825B00E47F5F /* fastlz.h */; };
 		B6DD2FF81B04825B00E47F5F /* fastlz.h in Headers */ = {isa = PBXBuildFile; fileRef = B6DD2FA61B04825B00E47F5F /* fastlz.h */; };
+		BEC43B891CD0916900C0BFA9 /* CCVRProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = BEC43B881CD0916900C0BFA9 /* CCVRProtocol.h */; };
+		BEC43B8B1CD092ED00C0BFA9 /* CCVRRenderer.h in Headers */ = {isa = PBXBuildFile; fileRef = BEC43B8A1CD092ED00C0BFA9 /* CCVRRenderer.h */; };
+		BEC43B8C1CD092ED00C0BFA9 /* CCVRRenderer.h in Headers */ = {isa = PBXBuildFile; fileRef = BEC43B8A1CD092ED00C0BFA9 /* CCVRRenderer.h */; };
+		BEC43B8D1CD092ED00C0BFA9 /* CCVRRenderer.h in Headers */ = {isa = PBXBuildFile; fileRef = BEC43B8A1CD092ED00C0BFA9 /* CCVRRenderer.h */; };
+		BEC43B8F1CD0942300C0BFA9 /* CCVRRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BEC43B8E1CD0942300C0BFA9 /* CCVRRenderer.cpp */; };
+		BEC43B921CD0A79100C0BFA9 /* CCHeadTracking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BEC43B901CD0A79100C0BFA9 /* CCHeadTracking.cpp */; };
+		BEC43BA31CD0B83400C0BFA9 /* CCVRCardboard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BEC43BA11CD0B83400C0BFA9 /* CCVRCardboard.cpp */; };
+		BEC43BA41CD0B83400C0BFA9 /* CCVRCardboard.h in Headers */ = {isa = PBXBuildFile; fileRef = BEC43BA21CD0B83400C0BFA9 /* CCVRCardboard.h */; };
+		BEC43BAA1CD0B84C00C0BFA9 /* CbApi_Config.h in Headers */ = {isa = PBXBuildFile; fileRef = BEC43BA51CD0B84C00C0BFA9 /* CbApi_Config.h */; };
+		BEC43BAB1CD0B84C00C0BFA9 /* CbApi_Helpers.h in Headers */ = {isa = PBXBuildFile; fileRef = BEC43BA61CD0B84C00C0BFA9 /* CbApi_Helpers.h */; };
+		BEC43BAC1CD0B84C00C0BFA9 /* CbApi_Types.h in Headers */ = {isa = PBXBuildFile; fileRef = BEC43BA71CD0B84C00C0BFA9 /* CbApi_Types.h */; };
+		BEC43BAD1CD0B84C00C0BFA9 /* CbApi.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BEC43BA81CD0B84C00C0BFA9 /* CbApi.cpp */; };
+		BEC43BAE1CD0B84C00C0BFA9 /* CbApi.h in Headers */ = {isa = PBXBuildFile; fileRef = BEC43BA91CD0B84C00C0BFA9 /* CbApi.h */; };
 		C50306691B60B583001E6D43 /* CCBoneNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C50306631B60B583001E6D43 /* CCBoneNode.cpp */; };
 		C503066A1B60B583001E6D43 /* CCBoneNode.h in Headers */ = {isa = PBXBuildFile; fileRef = C50306641B60B583001E6D43 /* CCBoneNode.h */; };
 		C503066B1B60B583001E6D43 /* CCSkeletonNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C50306651B60B583001E6D43 /* CCSkeletonNode.cpp */; };
@@ -7626,6 +7639,18 @@
 		B6DD2FA31B04825B00E47F5F /* DetourTileCacheBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DetourTileCacheBuilder.h; sourceTree = "<group>"; };
 		B6DD2FA51B04825B00E47F5F /* fastlz.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = fastlz.c; sourceTree = "<group>"; };
 		B6DD2FA61B04825B00E47F5F /* fastlz.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fastlz.h; sourceTree = "<group>"; };
+		BEC43B881CD0916900C0BFA9 /* CCVRProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CCVRProtocol.h; path = ../cocos/vr/CCVRProtocol.h; sourceTree = "<group>"; };
+		BEC43B8A1CD092ED00C0BFA9 /* CCVRRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CCVRRenderer.h; path = ../cocos/vr/CCVRRenderer.h; sourceTree = "<group>"; };
+		BEC43B8E1CD0942300C0BFA9 /* CCVRRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CCVRRenderer.cpp; path = ../cocos/vr/CCVRRenderer.cpp; sourceTree = "<group>"; };
+		BEC43B901CD0A79100C0BFA9 /* CCHeadTracking.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CCHeadTracking.cpp; path = ../cocos/vr/CCHeadTracking.cpp; sourceTree = "<group>"; };
+		BEC43B941CD0A7CC00C0BFA9 /* CCHeadTracking.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = CCHeadTracking.h; path = ../cocos/vr/CCHeadTracking.h; sourceTree = "<group>"; };
+		BEC43BA11CD0B83400C0BFA9 /* CCVRCardboard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CCVRCardboard.cpp; path = ../cocos/vr/CCVRCardboard.cpp; sourceTree = "<group>"; };
+		BEC43BA21CD0B83400C0BFA9 /* CCVRCardboard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CCVRCardboard.h; path = ../cocos/vr/CCVRCardboard.h; sourceTree = "<group>"; };
+		BEC43BA51CD0B84C00C0BFA9 /* CbApi_Config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CbApi_Config.h; path = ../cocos/vr/cardboard/CbApi_Config.h; sourceTree = "<group>"; };
+		BEC43BA61CD0B84C00C0BFA9 /* CbApi_Helpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CbApi_Helpers.h; path = ../cocos/vr/cardboard/CbApi_Helpers.h; sourceTree = "<group>"; };
+		BEC43BA71CD0B84C00C0BFA9 /* CbApi_Types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CbApi_Types.h; path = ../cocos/vr/cardboard/CbApi_Types.h; sourceTree = "<group>"; };
+		BEC43BA81CD0B84C00C0BFA9 /* CbApi.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CbApi.cpp; path = ../cocos/vr/cardboard/CbApi.cpp; sourceTree = "<group>"; };
+		BEC43BA91CD0B84C00C0BFA9 /* CbApi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CbApi.h; path = ../cocos/vr/cardboard/CbApi.h; sourceTree = "<group>"; };
 		C50306631B60B583001E6D43 /* CCBoneNode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CCBoneNode.cpp; sourceTree = "<group>"; };
 		C50306641B60B583001E6D43 /* CCBoneNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCBoneNode.h; sourceTree = "<group>"; };
 		C50306651B60B583001E6D43 /* CCSkeletonNode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CCSkeletonNode.cpp; sourceTree = "<group>"; };
@@ -7757,6 +7782,7 @@
 		1551A334158F2AB200E66CFE = {
 			isa = PBXGroup;
 			children = (
+				BEC43B861CD08FB500C0BFA9 /* vr */,
 				46A15FCC1807A544005B8026 /* AUTHORS */,
 				1A57FFF7180BC5160088DEC7 /* CHANGELOG */,
 				50272539190BF1B900AAF4ED /* cocos2d.cpp */,
@@ -11134,6 +11160,33 @@
 			path = ../external/recast/fastlz;
 			sourceTree = "<group>";
 		};
+		BEC43B861CD08FB500C0BFA9 /* vr */ = {
+			isa = PBXGroup;
+			children = (
+				BEC43B981CD0B76800C0BFA9 /* cardboard */,
+				BEC43BA11CD0B83400C0BFA9 /* CCVRCardboard.cpp */,
+				BEC43BA21CD0B83400C0BFA9 /* CCVRCardboard.h */,
+				BEC43B881CD0916900C0BFA9 /* CCVRProtocol.h */,
+				BEC43B8A1CD092ED00C0BFA9 /* CCVRRenderer.h */,
+				BEC43B8E1CD0942300C0BFA9 /* CCVRRenderer.cpp */,
+				BEC43B901CD0A79100C0BFA9 /* CCHeadTracking.cpp */,
+				BEC43B941CD0A7CC00C0BFA9 /* CCHeadTracking.h */,
+			);
+			name = vr;
+			sourceTree = "<group>";
+		};
+		BEC43B981CD0B76800C0BFA9 /* cardboard */ = {
+			isa = PBXGroup;
+			children = (
+				BEC43BA51CD0B84C00C0BFA9 /* CbApi_Config.h */,
+				BEC43BA61CD0B84C00C0BFA9 /* CbApi_Helpers.h */,
+				BEC43BA71CD0B84C00C0BFA9 /* CbApi_Types.h */,
+				BEC43BA81CD0B84C00C0BFA9 /* CbApi.cpp */,
+				BEC43BA91CD0B84C00C0BFA9 /* CbApi.h */,
+			);
+			name = cardboard;
+			sourceTree = "<group>";
+		};
 		C50306621B60B56C001E6D43 /* Skeleton */ = {
 			isa = PBXGroup;
 			children = (
@@ -11394,6 +11447,7 @@
 				15AE18A719AAD33D00C27E9E /* CCScrollViewLoader.h in Headers */,
 				15FB20891AE7C57D00C31518 /* shapes.h in Headers */,
 				15AE184819AAD2F700C27E9E /* cocos3d.h in Headers */,
+				BEC43BAC1CD0B84C00C0BFA9 /* CbApi_Types.h in Headers */,
 				B6CAB2531AF9AA1A00B9B856 /* btEmptyCollisionAlgorithm.h in Headers */,
 				50ABBEC31925AB6F00A911A9 /* CCVector.h in Headers */,
 				1A57008B180BC5A10088DEC7 /* CCActionProgressTimer.h in Headers */,
@@ -11597,6 +11651,7 @@
 				50864CD61C7BC1B100B3BAB1 /* cpSlideJoint.h in Headers */,
 				1A5701F9180BCBAD0088DEC7 /* CCMenu.h in Headers */,
 				B6CAB4A11AF9AA1A00B9B856 /* PosixThreadSupport.h in Headers */,
+				BEC43BAB1CD0B84C00C0BFA9 /* CbApi_Helpers.h in Headers */,
 				C50306791B60B5B2001E6D43 /* SkeletonNodeReader.h in Headers */,
 				B665E3001AA80A6500DDB1C5 /* CCPUMaterialTranslator.h in Headers */,
 				B665E33C1AA80A6500DDB1C5 /* CCPUOnEventFlagObserver.h in Headers */,
@@ -11955,7 +12010,9 @@
 				15AE188B19AAD33D00C27E9E /* CCControlLoader.h in Headers */,
 				B29A7DF719EE1B7700872B35 /* Attachment.h in Headers */,
 				B6DD2FA91B04825B00E47F5F /* DebugDraw.h in Headers */,
+				BEC43B891CD0916900C0BFA9 /* CCVRProtocol.h in Headers */,
 				15FB208D1AE7C57D00C31518 /* poly2tri.h in Headers */,
+				BEC43B8B1CD092ED00C0BFA9 /* CCVRRenderer.h in Headers */,
 				B6CAB3091AF9AA1A00B9B856 /* btTriangleMesh.h in Headers */,
 				B6CAB4AF1AF9AA1A00B9B856 /* SpuCollisionTaskProcess.h in Headers */,
 				15AE1BCA19AAE01E00C27E9E /* CCControl.h in Headers */,
@@ -12024,6 +12081,7 @@
 				50ABBDA51925AB4100A911A9 /* CCQuadCommand.h in Headers */,
 				B6CAB3751AF9AA1A00B9B856 /* btGjkEpa2.h in Headers */,
 				15AE1BCF19AAE01E00C27E9E /* CCControlExtensions.h in Headers */,
+				BEC43BAA1CD0B84C00C0BFA9 /* CbApi_Config.h in Headers */,
 				B6CAB1F31AF9AA1A00B9B856 /* btCollisionAlgorithm.h in Headers */,
 				15AE1A3519AAD3D500C27E9E /* b2EdgeShape.h in Headers */,
 				B6CAB3151AF9AA1A00B9B856 /* btBoxCollision.h in Headers */,
@@ -12081,6 +12139,7 @@
 				B6CAB4171AF9AA1A00B9B856 /* btMultiBodySolverConstraint.h in Headers */,
 				A0534A651B872FFD006B03E5 /* CCDownloader-apple.h in Headers */,
 				15AE19A119AAD39600C27E9E /* TextAtlasReader.h in Headers */,
+				BEC43BAE1CD0B84C00C0BFA9 /* CbApi.h in Headers */,
 				50ABC0231926664800A911A9 /* CCGLViewImpl-desktop.h in Headers */,
 				382384231A2590DA002C4610 /* GameMapReader.h in Headers */,
 				B665E3681AA80A6500DDB1C5 /* CCPUOnTimeObserverTranslator.h in Headers */,
@@ -12207,6 +12266,7 @@
 				B6DD2FEF1B04825B00E47F5F /* DetourTileCache.h in Headers */,
 				50ABBECD1925AB6F00A911A9 /* s3tc.h in Headers */,
 				B6CAB3651AF9AA1A00B9B856 /* btContinuousConvexCollision.h in Headers */,
+				BEC43BA41CD0B83400C0BFA9 /* CCVRCardboard.h in Headers */,
 				15AE1BD119AAE01E00C27E9E /* CCControlHuePicker.h in Headers */,
 				B5CE6DC01B3BF2B1002B0419 /* UIAbstractCheckButton.h in Headers */,
 				D0FD03571A3B51AA00825BB5 /* CCAllocatorMutex.h in Headers */,
@@ -12643,6 +12703,7 @@
 				507B3E981C31BDD30067B53E /* btUniformScalingShape.h in Headers */,
 				507B3E991C31BDD30067B53E /* CCPUPointEmitterTranslator.h in Headers */,
 				507B3E9A1C31BDD30067B53E /* btPATHSolver.h in Headers */,
+				BEC43B8D1CD092ED00C0BFA9 /* CCVRRenderer.h in Headers */,
 				507B3E9B1C31BDD30067B53E /* CCPhysicsSprite.h in Headers */,
 				507B3E9C1C31BDD30067B53E /* AssetsManager.h in Headers */,
 				507B3E9D1C31BDD30067B53E /* CCPULineAffector.h in Headers */,
@@ -13684,6 +13745,7 @@
 				B6CAB3141AF9AA1A00B9B856 /* btUniformScalingShape.h in Headers */,
 				B665E39D1AA80A6500DDB1C5 /* CCPUPointEmitterTranslator.h in Headers */,
 				B6CAB4261AF9AA1A00B9B856 /* btPATHSolver.h in Headers */,
+				BEC43B8C1CD092ED00C0BFA9 /* CCVRRenderer.h in Headers */,
 				15AE1C1819AAE2C700C27E9E /* CCPhysicsSprite.h in Headers */,
 				15AE1BC819AAE00000C27E9E /* AssetsManager.h in Headers */,
 				B665E2E11AA80A6500DDB1C5 /* CCPULineAffector.h in Headers */,
@@ -14548,6 +14610,7 @@
 				50ABBFFF1926664800A911A9 /* CCFileUtils-apple.mm in Sources */,
 				1A570075180BC5A10088DEC7 /* CCActionGrid3D.cpp in Sources */,
 				382383F81A258FA7002C4610 /* idl_gen_general.cpp in Sources */,
+				BEC43B8F1CD0942300C0BFA9 /* CCVRRenderer.cpp in Sources */,
 				15AE1C1319AAE2C600C27E9E /* CCPhysicsSprite.cpp in Sources */,
 				382384131A259092002C4610 /* NodeReaderProtocol.cpp in Sources */,
 				B665E2C21AA80A6500DDB1C5 /* CCPUGeometryRotatorTranslator.cpp in Sources */,
@@ -14636,6 +14699,7 @@
 				1A57011B180BC90D0088DEC7 /* CCGrabber.cpp in Sources */,
 				B6CAB3951AF9AA1A00B9B856 /* btSubSimplexConvexCast.cpp in Sources */,
 				B29A7E3719EE1B7700872B35 /* AnimationStateData.c in Sources */,
+				BEC43BAD1CD0B84C00C0BFA9 /* CbApi.cpp in Sources */,
 				15AE182419AAD2F700C27E9E /* CCMesh.cpp in Sources */,
 				15AE190D19AAD35000C27E9E /* CCDisplayManager.cpp in Sources */,
 				B6CAB2271AF9AA1A00B9B856 /* btCollisionDispatcher.cpp in Sources */,
@@ -14707,6 +14771,7 @@
 				B6DD2FAB1B04825B00E47F5F /* DetourDebugDraw.cpp in Sources */,
 				15AE191719AAD35000C27E9E /* CCSpriteFrameCacheHelper.cpp in Sources */,
 				B665E2E21AA80A6500DDB1C5 /* CCPULineAffectorTranslator.cpp in Sources */,
+				BEC43BA31CD0B83400C0BFA9 /* CCVRCardboard.cpp in Sources */,
 				B6CAB2A31AF9AA1A00B9B856 /* btConvexHullShape.cpp in Sources */,
 				1A087AE81860400400196EF5 /* edtaa3func.cpp in Sources */,
 				50ABBD831925AB4100A911A9 /* CCBatchCommand.cpp in Sources */,
@@ -14815,6 +14880,7 @@
 				1A570229180BCC1A0088DEC7 /* CCParticleSystem.cpp in Sources */,
 				B665E3BA1AA80A6500DDB1C5 /* CCPURibbonTrailRender.cpp in Sources */,
 				B665E4321AA80A6600DDB1C5 /* CCPUVertexEmitter.cpp in Sources */,
+				BEC43B921CD0A79100C0BFA9 /* CCHeadTracking.cpp in Sources */,
 				B665E3DA1AA80A6600DDB1C5 /* CCPUScriptTranslator.cpp in Sources */,
 				B665E2361AA80A6500DDB1C5 /* CCPUBoxEmitterTranslator.cpp in Sources */,
 				1A57022D180BCC1A0088DEC7 /* CCParticleSystemQuad.cpp in Sources */,

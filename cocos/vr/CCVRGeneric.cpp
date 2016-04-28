@@ -24,10 +24,11 @@
 
 #include "platform/CCPlatformMacros.h"
 #include "vr/CCVRGeneric.h"
-#include "2d/CCScene.h"
 #include "renderer/CCRenderer.h"
 #include "renderer/CCGLProgramState.h"
+#include "renderer/ccGLStateCache.h"
 #include "base/CCDirector.h"
+#include "2d/CCScene.h"
 
 NS_CC_BEGIN
 
@@ -49,6 +50,56 @@ void VRGeneric::setup()
 {
     setupFramebuffer();
     setupCommands();
+    setupVBO();
+}
+
+void Renderer::setupVBO()
+{
+    // init indices
+    for (int i=0; i < INDEX_VBO_SIZE/6; i++)
+    {
+        _indices[i*6+0] = (GLushort) (i*4+0);
+        _indices[i*6+1] = (GLushort) (i*4+1);
+        _indices[i*6+2] = (GLushort) (i*4+2);
+        _indices[i*6+3] = (GLushort) (i*4+3);
+        _indices[i*6+4] = (GLushort) (i*4+2);
+        _indices[i*6+5] = (GLushort) (i*4+1);
+    }
+
+    // init vertices
+    for (int i=0; i < VBO_SIZE/4; i++)
+    {
+        // bottom left
+        _verts[i*4+0].colors = Color4B::WHITE;
+        _verts[i*4+0].texCoords = {0,0};
+        _verts[i*4+0].vertices = {0,0,0};
+
+        // bottom right
+        _verts[i*4+1].colors = Color4B::WHITE;
+        _verts[i*4+1].texCoords = {1,0};
+        _verts[i*4+1].vertices = {0,0,0};
+
+        // bottom right
+        _verts[i*4+0].colors = Color4B::WHITE;
+        _verts[i*4+0].texCoords = {1,0};
+        _verts[i*4+0].vertices = {0,0,0};
+    }
+
+    // create buffers
+    glGenBuffers(2, &_buffersVBO[0]);
+
+    // Avoid changing the element buffer for whatever VAO might be bound.
+    GL::bindVAO(0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, _buffersVBO[0]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(_verts[0]) * VBO_SIZE, _verts, GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _buffersVBO[1]);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(_indices[0]) * INDEX_VBO_SIZE, _indices, GL_STATIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+    CHECK_GL_ERROR_DEBUG();
 }
 
 void VRGeneric::setupCommands()
@@ -59,68 +110,14 @@ void VRGeneric::setupCommands()
     auto director = Director::getInstance();
     auto mv = director->getMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
 
-    setupQuad(&_quadLeft);
-    setupQuad(&_quadRight);
+    _leftEye.init(-1000);
+    _leftEye.func = CC_CALLBACK_0(VRGeneric::onLeftDraw, this, mv, 0);
 
-    _leftEye.init(0, _textureId,
-                  _programState,
-                   BlendFunc::ALPHA_PREMULTIPLIED,
-                  &_quadLeft,
-                  1,
-                  mv,
-                  0);
+//    _rightEye.init(0, mv, 0);
+//    _rightEye.func = CC_CALLBACK_0(VRGeneric::onRightDraw, this, mv, 0);
 
-    _rightEye.init(0, _textureId,
-                  _programState,
-                  BlendFunc::ALPHA_PREMULTIPLIED,
-                  &_quadRight,
-                  1,
-                  mv,
-                  0);
-
-}
-
-void VRGeneric::setupQuad(V3F_C4B_T2F_Quad* quad)
-{
-    auto director = Director::getInstance();
-    auto size = director->getVisibleSize();
-
-    // clean the Quad
-    memset(quad, 0, sizeof(*quad));
-    // Atlas: Color
-    quad->bl.colors = Color4B::WHITE;
-    quad->br.colors = Color4B::WHITE;
-    quad->tl.colors = Color4B::WHITE;
-    quad->tr.colors = Color4B::WHITE;
-
-    // left eye
-    float x1 = 0;
-    float y1 = 0;
-    float x2 = size.width / 2;
-    float y2 = size.height;
-
-    if (quad == &_quadRight) {
-        x1 = size.width / 2;
-    }
-
-    quad->bl.vertices = Vec3(x1, y1, 0);
-    quad->br.vertices = Vec3(x2, y1, 0);
-    quad->tl.vertices = Vec3(x1, y2, 0);
-    quad->tr.vertices = Vec3(x2, y2, 0);
-
-    const float left = 0;
-    const float right = 1;
-    const float top = 1;
-    const float bottom = 0;
-    
-    quad->bl.texCoords.u = left;
-    quad->bl.texCoords.v = top;
-    quad->br.texCoords.u = left;
-    quad->br.texCoords.v = bottom;
-    quad->tl.texCoords.u = right;
-    quad->tl.texCoords.v = top;
-    quad->tr.texCoords.u = right;
-    quad->tr.texCoords.v = bottom;
+    _afterDraw.init(1000);
+    _afterDraw.func = CC_CALLBACK_0(VRGeneric::onAfterDraw, this, mv, 0);
 }
 
 void VRGeneric::setupFramebuffer()
@@ -172,14 +169,19 @@ void VRGeneric::cleanup()
 
 }
 
-void VRGeneric::beforeDraw(Scene* scene, Renderer* renderer)
+void VRGeneric::onLeftDraw(Mat4 &transform, uint32_t flags)
 {
     // bind framebuffer
     glGetIntegerv(GL_FRAMEBUFFER_BINDING, &_originalFramebufferId);
+    CHECK_GL_ERROR_DEBUG();
+
     glBindFramebuffer(GL_FRAMEBUFFER, _framebufferId);
+    CHECK_GL_ERROR_DEBUG();
 
     // save viewport
     glGetIntegerv(GL_VIEWPORT, _viewport);
+    CHECK_GL_ERROR_DEBUG();
+
     _cullFaceEnabled = glIsEnabled(GL_CULL_FACE);
     _scissorTestEnabled = glIsEnabled(GL_SCISSOR_TEST);
 
@@ -191,30 +193,63 @@ void VRGeneric::beforeDraw(Scene* scene, Renderer* renderer)
 
     glViewport(0, 0, viewport_width / 2, viewport_height);
     glScissor(0, 0, viewport_width / 2, viewport_height);
-
-    // pass left eye transform
-    scene->render(renderer);
-
-    glViewport(viewport_width / 2, 0, viewport_width / 2, viewport_width);
-    glScissor(viewport_width / 2, 0, viewport_width / 2, viewport_width);
-
-    // pass right eye transform
-    scene->render(renderer);
-
-    glBindFramebuffer(GL_FRAMEBUFFER, _originalFramebufferId);
+    CHECK_GL_ERROR_DEBUG();
 }
 
-
-void VRGeneric::afterDraw(Scene* scene, Renderer* renderer)
+void VRGeneric::onRightDraw(Mat4 &transform, uint32_t flags)
 {
-    // flush
-    renderer->render();
+    auto size = Director::getInstance()->getVisibleSize();
 
-    glBindFramebuffer(GL_FRAMEBUFFER, _originalFramebufferId);
+    glDisable(GL_CULL_FACE);
+    glDisable(GL_SCISSOR_TEST);
+    CHECK_GL_ERROR_DEBUG();
+
+    glClearColor(0.0F, 0.0F, 1.0F, 1.0F);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glViewport(_viewport[0], _viewport[1], _viewport[2], _viewport[3]);
+    CHECK_GL_ERROR_DEBUG();
 
+    glEnable(GL_SCISSOR_TEST);
+
+    glScissor(0, 0, size.width / 2, size.height);
+    CHECK_GL_ERROR_DEBUG();
+
+    // draw
+    GL::bindTexture2D((GLuint)_textureId);
+    GL::blendFunc(CC_BLEND_SRC, CC_BLEND_DST);
+    _programState->apply(transform);
+
+    glBindBuffer(GL_ARRAY_BUFFER, _buffersVBO[0]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(_verts[0]) * _filledVertex , _verts, GL_STATIC_DRAW);
+
+    GL::enableVertexAttribs(GL::VERTEX_ATTRIB_FLAG_POS_COLOR_TEX);
+
+    // vertices
+    glVertexAttribPointer(GLProgram::VERTEX_ATTRIB_POSITION, 3, GL_FLOAT, GL_FALSE, kQuadSize, (GLvoid*) offsetof(V3F_C4B_T2F, vertices));
+    // colors
+    glVertexAttribPointer(GLProgram::VERTEX_ATTRIB_COLOR, 4, GL_UNSIGNED_BYTE, GL_TRUE, kQuadSize, (GLvoid*) offsetof(V3F_C4B_T2F, colors));
+    // tex coords
+    glVertexAttribPointer(GLProgram::VERTEX_ATTRIB_TEX_COORD, 2, GL_FLOAT, GL_FALSE, kQuadSize, (GLvoid*) offsetof(V3F_C4B_T2F, texCoords));
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _buffersVBO[1]);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(_indices[0]) * _filledIndex, _indices, GL_STATIC_DRAW);
+
+    if (_cullFaceEnabled)
+        glEnable(GL_CULL_FACE);
+    else
+        glDisable(GL_CULL_FACE);
+
+    if (_scissorTestEnabled)
+        glEnable(GL_SCISSOR_TEST);
+    else
+        glDisable(GL_SCISSOR_TEST);
+}
+
+void VRGeneric::render(Scene* scene, Renderer* renderer)
+{
     renderer->addCommand(&_leftEye);
-    renderer->addCommand(&_rightEye);
+    scene->render(renderer);
+    renderer->addCommand(&_afterDraw);
 }
 
 NS_CC_END

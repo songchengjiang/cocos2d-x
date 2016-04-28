@@ -23,7 +23,7 @@
  ****************************************************************************/
 
 #include "vr/CCVRProtocol.h"
-#include "renderer/CCQuadCommand.h"
+#include "renderer/CCCustomCommand.h"
 
 NS_CC_BEGIN
 
@@ -32,18 +32,26 @@ class GLProgramState;
 class CC_DLL VRGeneric : public VRProtocol
 {
 public:
+    /**The max number of vertices in a vertex buffer object.*/
+    static const int VBO_SIZE = 65536;
+    /**The max number of indices in a index buffer.*/
+    static const int INDEX_VBO_SIZE = VBO_SIZE * 6 / 4;
+
     VRGeneric();
     virtual ~VRGeneric();
 
     virtual void setup();
     virtual void cleanup();
-    virtual void beforeDraw(Scene* scene, Renderer* renderer);
-    virtual void afterDraw(Scene* scene, Renderer* renderer);
+    virtual void render(Scene* scene, Renderer* renderer);
 
 protected:
+    void onLeftDraw(Mat4 &transform, uint32_t flags);
+    void onRightDraw(Mat4 &transform, uint32_t flags);
+    void onAfterDraw(Mat4 &transform, uint32_t flags);
+
     void setupFramebuffer();
     void setupCommands();
-    void setupQuad(V3F_C4B_T2F_Quad* quad);
+    void setupVBO();
 
     GLint _textureId;
     GLint _renderbufferId;
@@ -54,10 +62,14 @@ protected:
     GLboolean _scissorTestEnabled;
 
     GLProgramState* _programState;
-    QuadCommand _leftEye;
-    QuadCommand _rightEye;
-    V3F_C4B_T2F_Quad _quadLeft;
-    V3F_C4B_T2F_Quad _quadRight;
+    CustomCommand _leftEye;
+    CustomCommand _rightEye;
+    CustomCommand _afterDraw;
+
+    //for TrianglesCommand
+    V3F_C4B_T2F _verts[VBO_SIZE];
+    GLushort _indices[INDEX_VBO_SIZE];
+    GLuint _buffersVBO[2]; //0: vertex  1: indices
 };
 
 NS_CC_END

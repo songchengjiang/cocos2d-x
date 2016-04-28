@@ -477,8 +477,7 @@ void GLView::renderScene(Scene* scene, Renderer* renderer)
 
     if (_vrEnabled)
     {
-        _vrImpl->beforeDraw(scene, renderer);
-        _vrImpl->afterDraw(scene, renderer);
+        _vrImpl->render(scene, renderer);
     }
     else
     {

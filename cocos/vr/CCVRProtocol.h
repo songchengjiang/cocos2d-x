@@ -42,8 +42,7 @@ public:
 
     virtual void setup() = 0;
     virtual void cleanup() = 0;
-    virtual void beforeDraw(Scene* scene, Renderer* renderer) = 0;
-    virtual void afterDraw(Scene* scene, Renderer* renderer) = 0;
+    virtual void render(Scene* scene, Renderer* renderer) = 0;
 };
 
 NS_CC_END

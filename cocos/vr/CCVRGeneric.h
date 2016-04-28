@@ -24,52 +24,29 @@
 
 #include "vr/CCVRProtocol.h"
 #include "renderer/CCCustomCommand.h"
+#include "renderer/CCFrameBuffer.h"
 
 NS_CC_BEGIN
 
-class GLProgramState;
+class Camera;
+class Sprite;
 
 class CC_DLL VRGeneric : public VRProtocol
 {
 public:
-    /**The max number of vertices in a vertex buffer object.*/
-    static const int VBO_SIZE = 65536;
-    /**The max number of indices in a index buffer.*/
-    static const int INDEX_VBO_SIZE = VBO_SIZE * 6 / 4;
-
     VRGeneric();
     virtual ~VRGeneric();
 
-    virtual void setup();
+    virtual void setup(GLView* glview);
     virtual void cleanup();
     virtual void render(Scene* scene, Renderer* renderer);
 
 protected:
-    void onLeftDraw(Mat4 &transform, uint32_t flags);
-    void onRightDraw(Mat4 &transform, uint32_t flags);
-    void onAfterDraw(Mat4 &transform, uint32_t flags);
-
-    void setupFramebuffer();
-    void setupCommands();
-    void setupVBO();
-
-    GLint _textureId;
-    GLint _renderbufferId;
-    GLint _framebufferId;
-    GLint _originalFramebufferId;
-    GLint _viewport[4];
-    GLboolean _cullFaceEnabled;
-    GLboolean _scissorTestEnabled;
-
-    GLProgramState* _programState;
-    CustomCommand _leftEye;
-    CustomCommand _rightEye;
-    CustomCommand _afterDraw;
-
-    //for TrianglesCommand
-    V3F_C4B_T2F _verts[VBO_SIZE];
-    GLushort _indices[INDEX_VBO_SIZE];
-    GLuint _buffersVBO[2]; //0: vertex  1: indices
+    experimental::FrameBuffer* _leftFB;
+    experimental::FrameBuffer* _rightFB;
+    Sprite* _leftSprite;
+    Sprite* _rightSprite;
+    Size _texSize;
 };
 
 NS_CC_END

@@ -109,7 +109,7 @@ public:
      * @param renderer The renderer use to render the scene.
      * @js NA
      */
-    virtual void render(Renderer* renderer);
+    virtual void render(Renderer* renderer, const Vec3& eyeOffset);
     
     /** override function */
     virtual void removeAllChildren() override;

@@ -481,7 +481,7 @@ void GLView::renderScene(Scene* scene, Renderer* renderer)
     }
     else
     {
-        scene->render(renderer);
+        scene->render(renderer, Vec3::ZERO);
     }
 }
 
@@ -493,7 +493,7 @@ void GLView::setVREnabled(bool enabled)
         if (_vrEnabled && !_vrImpl)
         {
             _vrImpl = new VRGeneric;
-            _vrImpl->setup();
+            _vrImpl->setup(this);
         }
     }
 }

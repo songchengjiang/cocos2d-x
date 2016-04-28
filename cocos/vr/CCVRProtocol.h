@@ -34,13 +34,14 @@ NS_CC_BEGIN
 
 class Scene;
 class Renderer;
+class GLView;
 
 class CC_DLL VRProtocol
 {
 public:
     virtual ~VRProtocol() {}
 
-    virtual void setup() = 0;
+    virtual void setup(GLView* glview) = 0;
     virtual void cleanup() = 0;
     virtual void render(Scene* scene, Renderer* renderer) = 0;
 };

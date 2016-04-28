@@ -245,31 +245,36 @@ public:
      */
     void apply();
     /**
+     Restor the FBO, RenderTargets and viewport.
+     */
+    void restore();
+
+    /**
      Set FBO, which will attach several render target for the rendered result.
-    */
+     */
     void setFrameBufferObject(experimental::FrameBuffer* fbo);
     /**
      Set Viewport for camera.
      */
     void setViewport(const experimental::Viewport& vp) { _viewport = vp; }
-    
+
     /**
      * Whether or not the viewprojection matrix was updated since the last frame.
      * @return True if the viewprojection matrix was updated since the last frame.
      */
     bool isViewProjectionUpdated() const {return _viewProjectionUpdated;}
-    
+
     /**
      * set the background brush. See CameraBackgroundBrush for more information.
      * @param clearBrush Brush used to clear the background
      */
     void setBackgroundBrush(CameraBackgroundBrush* clearBrush);
-    
+
     /**
      * Get clear brush
      */
     CameraBackgroundBrush* getBackgroundBrush() const { return _clearBrush; }
-    
+
     virtual void visit(Renderer* renderer, const Mat4 &parentTransform, uint32_t parentFlags) override;
 
     bool isBrushValid();
@@ -277,21 +282,24 @@ public:
 CC_CONSTRUCTOR_ACCESS:
     Camera();
     ~Camera();
-    
+
     /**
      * Set the scene,this method shall not be invoke manually
      */
     void setScene(Scene* scene);
-    
+
     /**set additional matrix for the projection matrix, it multiplies mat to projection matrix when called, used by WP8*/
     void setAdditionalProjection(const Mat4& mat);
-    
+
     /** init camera */
     bool initDefault();
     bool initPerspective(float fieldOfView, float aspectRatio, float nearPlane, float farPlane);
     bool initOrthographic(float zoomX, float zoomY, float nearPlane, float farPlane);
     void applyFrameBufferObject();
     void applyViewport();
+    void restoreFrameBufferObject();
+    void restoreViewport();
+
 protected:
 
     Scene* _scene; //Scene camera belongs to
@@ -299,6 +307,7 @@ protected:
     mutable Mat4 _view;
     mutable Mat4 _viewInv;
     mutable Mat4 _viewProjection;
+
     Vec3 _up;
     Camera::Type _type;
     float _fieldOfView;
@@ -313,12 +322,13 @@ protected:
     mutable bool _frustumDirty;
     int8_t  _depth;                 //camera depth, the depth of camera with CameraFlag::DEFAULT flag is 0 by default, a camera with larger depth is drawn on top of camera with smaller depth
     static Camera* _visitingCamera;
-    
+
     CameraBackgroundBrush* _clearBrush; //brush used to clear the back ground
-    
+
     experimental::Viewport _viewport;
-    
     experimental::FrameBuffer* _fbo;
+    GLint _oldViewport[4];
+
 protected:
     static experimental::Viewport _defaultViewport;
 public:

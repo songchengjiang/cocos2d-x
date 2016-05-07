@@ -48,7 +48,16 @@ VRGeneric::~VRGeneric()
 
 void VRGeneric::setup(GLView* glview)
 {
-    _texSize = glview->getFrameSize();
+//    CC_UNUSED(glview);
+
+    // rebase default viewport in case origin is not 0,0
+    auto vp = Camera::getDefaultViewport();
+    _vrViewSize.width = vp._width/2 + vp._left;
+    _vrViewSize.height = vp._height/2 + vp._bottom;
+    vp._left = vp._bottom = 0;
+    Camera::setDefaultViewport(vp);
+
+    _texSize = Size(vp._width, vp._height);
 
     _leftFB = experimental::FrameBuffer::create(1, _texSize.width, _texSize.height);
     _leftFB->retain();
@@ -70,13 +79,17 @@ void VRGeneric::setup(GLView* glview)
     _leftSprite->retain();
     _leftSprite->setPosition(Vec2(0,0));
     _leftSprite->setAnchorPoint(Vec2::ANCHOR_TOP_LEFT);
-    _leftSprite->setScaleY(-1);
+    _leftSprite->setScaleY(-1/CC_CONTENT_SCALE_FACTOR());
+    _leftSprite->setScaleX(1/CC_CONTENT_SCALE_FACTOR());
+//    _leftSprite->setPolygonInfo(polyinfo);
 
     _rightSprite = Sprite::createWithTexture(_rightFB->getRenderTarget()->getTexture());
     _rightSprite->retain();
     _rightSprite->setPosition(Vec2(0,0));
     _rightSprite->setAnchorPoint(Vec2::ANCHOR_TOP_LEFT);
-    _rightSprite->setScaleY(-1);
+    _rightSprite->setScaleY(-1/CC_CONTENT_SCALE_FACTOR());
+    _rightSprite->setScaleX(1/CC_CONTENT_SCALE_FACTOR());
+//    _rightSprite->setPolygonInfo(polyinfo);
 }
 
 void VRGeneric::cleanup()
@@ -96,11 +109,11 @@ void VRGeneric::render(Scene* scene, Renderer* renderer)
     GLint viewport[4];
     glGetIntegerv(GL_VIEWPORT, viewport);
 
-    glViewport(0, 0, _texSize.width/2, _texSize.height/2);
+    glViewport(0, _vrViewSize.height/2 , _vrViewSize.width, _vrViewSize.height);
     _leftSprite->visit(renderer, Mat4::IDENTITY, 0);
     renderer->render();
 
-    glViewport(_texSize.width/2, 0, _texSize.width/2, _texSize.height/2);
+    glViewport(_vrViewSize.width, _vrViewSize.height/2 , _vrViewSize.width, _vrViewSize.height);
     _rightSprite->visit(renderer, Mat4::IDENTITY, 0);
     renderer->render();
 

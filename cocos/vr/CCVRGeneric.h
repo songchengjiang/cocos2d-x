@@ -47,6 +47,7 @@ protected:
     Sprite* _leftSprite;
     Sprite* _rightSprite;
     Size _texSize;
+    Size _vrViewSize;
 };
 
 NS_CC_END

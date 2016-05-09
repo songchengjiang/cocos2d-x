@@ -155,7 +155,7 @@ public:
     int createRenderQueue();
 
     /** Renders into the GLView all the queued `RenderCommand` objects */
-    void render();
+    virtual void render();
 
     /** Cleans all `RenderCommand`s in the queue */
     void clean();

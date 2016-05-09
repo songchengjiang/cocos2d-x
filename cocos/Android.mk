@@ -214,6 +214,9 @@ navmesh/CCNavMeshAgent.cpp \
 navmesh/CCNavMeshDebugDraw.cpp \
 navmesh/CCNavMeshObstacle.cpp \
 navmesh/CCNavMeshUtils.cpp \
+vr/CCVRGeneric.cpp \
+vr/CCVRCardboard.cpp \
+vr/cardboard/CbApi.cpp \
 ../external/ConvertUTF/ConvertUTFWrapper.cpp \
 ../external/ConvertUTF/ConvertUTF.c \
 ../external/tinyxml2/tinyxml2.cpp \

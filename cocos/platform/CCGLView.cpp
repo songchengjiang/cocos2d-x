@@ -33,6 +33,7 @@ THE SOFTWARE.
 #include "renderer/CCRenderer.h"
 #include "vr/CCVRProtocol.h"
 #include "vr/CCVRGeneric.h"
+#include "vr/CCVRCardboard.h"
 
 NS_CC_BEGIN
 
@@ -492,7 +493,7 @@ void GLView::setVREnabled(bool enabled)
         _vrEnabled = enabled;
         if (_vrEnabled && !_vrImpl)
         {
-            _vrImpl = new VRGeneric;
+            _vrImpl = new VRCardboard;
             _vrImpl->setup(this);
         }
     }

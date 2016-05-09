@@ -67,6 +67,7 @@ namespace cocos2d {
     JavaVM* JniHelper::_psJavaVM = nullptr;
     jmethodID JniHelper::loadclassMethod_methodID = nullptr;
     jobject JniHelper::classloader = nullptr;
+    jobject JniHelper::_activity = nullptr;
     std::unordered_map<JNIEnv*, std::vector<jobject>> JniHelper::localRefs;
 
     JavaVM* JniHelper::getJavaVM() {
@@ -122,6 +123,10 @@ namespace cocos2d {
             _env = JniHelper::cacheEnv(_psJavaVM);
         return _env;
     }
+    
+    jobject JniHelper::getActivity() {
+        return _activity;
+    }
 
     bool JniHelper::setClassLoaderFrom(jobject activityinstance) {
         JniMethodInfo _getclassloaderMethod;
@@ -149,6 +154,7 @@ namespace cocos2d {
 
         JniHelper::classloader = cocos2d::JniHelper::getEnv()->NewGlobalRef(_c);
         JniHelper::loadclassMethod_methodID = _m.methodID;
+        JniHelper::_activity = cocos2d::JniHelper::getEnv()->NewGlobalRef(activityinstance);;
 
         return true;
     }

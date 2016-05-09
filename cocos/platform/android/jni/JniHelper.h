@@ -46,6 +46,7 @@ public:
     static void setJavaVM(JavaVM *javaVM);
     static JavaVM* getJavaVM();
     static JNIEnv* getEnv();
+    static jobject getActivity();
 
     static bool setClassLoaderFrom(jobject activityInstance);
     static bool getStaticMethodInfo(JniMethodInfo &methodinfo,
@@ -174,6 +175,8 @@ private:
                                                  const char *paramCode);
 
     static JavaVM* _psJavaVM;
+    
+    static jobject _activity;
 
     static jstring convert(cocos2d::JniMethodInfo& t, const char* x);
 

@@ -31,6 +31,18 @@ NS_CC_BEGIN
 class Camera;
 class Sprite;
 
+struct CC_DLL VREye
+{
+    typedef enum  {
+        MONO,
+        LEFT,
+        RIGHT,
+    } EyeType;
+
+    EyeType type;
+    experimental::Viewport viewport;
+};
+
 class CC_DLL VRGeneric : public VRProtocol
 {
 public:
@@ -42,12 +54,12 @@ public:
     virtual void render(Scene* scene, Renderer* renderer);
 
 protected:
-    experimental::FrameBuffer* _leftFB;
-    experimental::FrameBuffer* _rightFB;
-    Sprite* _leftSprite;
-    Sprite* _rightSprite;
+    experimental::FrameBuffer* _fb;
+    Sprite* _fbSprite;
     Size _texSize;
-    Size _vrViewSize;
+    VREye _leftEye;
+    VREye _rightEye;
 };
+
 
 NS_CC_END

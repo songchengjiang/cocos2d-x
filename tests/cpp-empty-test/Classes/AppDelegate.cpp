@@ -91,6 +91,8 @@ bool AppDelegate::applicationDidFinishLaunching() {
     cocostudio::LocalizationHelper::setCurrentManager(lm, true);
     */
 
+    glview->setVREnabled(true);
+
     // turn on display FPS
     director->setDisplayStats(true);
 

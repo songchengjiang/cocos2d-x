@@ -42,8 +42,8 @@ VRGeneric::VRGeneric()
 
 VRGeneric::~VRGeneric()
 {
-    CC_SAFE_RELEASE(_leftSprite);
-    CC_SAFE_RELEASE(_rightSprite);
+    CC_SAFE_RELEASE(_fbSprite);
+    CC_SAFE_RELEASE(_fb);
 }
 
 void VRGeneric::setup(GLView* glview)
@@ -52,30 +52,29 @@ void VRGeneric::setup(GLView* glview)
 
     // set origin to 0,0 in case origin is not 0,0
     auto vp = Camera::getDefaultViewport();
-    _vrViewSize.width = vp._width/2 + vp._left;
-    _vrViewSize.height = vp._height/2 + vp._bottom;
-    vp._left = vp._bottom = 0;
-    Camera::setDefaultViewport(vp);
+
+    _leftEye.viewport._bottom = _leftEye.viewport._left = 0;
+    _leftEye.viewport._width = vp._width/2;
+    _leftEye.viewport._height = vp._height/2;
+
+    _rightEye.viewport._bottom = 0;
+    _rightEye.viewport._left = _leftEye.viewport._width;
+    _rightEye.viewport._width = vp._width/2;
+    _rightEye.viewport._height = vp._height/2;
+
 
     _texSize = Size(vp._width, vp._height);
 
-    _leftFB = experimental::FrameBuffer::create(1, _texSize.width, _texSize.height);
-    _leftFB->retain();
-    auto leftRT = experimental::RenderTarget::create(_texSize.width, _texSize.height);
-    auto leftDS = experimental::RenderTargetDepthStencil::create(_texSize.width, _texSize.height);
-    _leftFB->attachRenderTarget(leftRT);
-    _leftFB->attachDepthStencilTarget(leftDS);
-    _leftFB->setClearColor(Color4F(1,0,0,1));
+    _fb = experimental::FrameBuffer::create(1, _texSize.width, _texSize.height);
+    _fb->retain();
+    auto rt = experimental::RenderTarget::create(_texSize.width, _texSize.height);
+    auto ds = experimental::RenderTargetDepthStencil::create(_texSize.width, _texSize.height);
+    _fb->attachRenderTarget(rt);
+    _fb->attachDepthStencilTarget(ds);
+    _fb->setClearColor(Color4F(1,0,0,1));
 
-    _rightFB = experimental::FrameBuffer::create(2, _texSize.width, _texSize.height);
-    _rightFB->retain();
-    auto rightRT = experimental::RenderTarget::create(_texSize.width, _texSize.height);
-    auto rightDS = experimental::RenderTargetDepthStencil::create(_texSize.width, _texSize.height);
-    _rightFB->attachRenderTarget(rightRT);
-    _rightFB->attachDepthStencilTarget(rightDS);
-    _rightFB->setClearColor(Color4F(0,0,1,1));
-
-    Size scaledTex = Size(vp._width/2, vp._height/2);
+    auto director = Director::getInstance();
+    Size scaledTex = director->getWinSize();
     V3F_C4B_T2F_Quad quad;
     quad.bl.colors = Color4B::WHITE;
     quad.bl.texCoords = Tex2F(0,0);
@@ -96,17 +95,11 @@ void VRGeneric::setup(GLView* glview)
     PolygonInfo polyInfo;
     polyInfo.setQuad(&quad);
 
-    _leftSprite = Sprite::createWithTexture(_leftFB->getRenderTarget()->getTexture());
-    _leftSprite->retain();
-    _leftSprite->setPosition(Vec2(0,0));
-    _leftSprite->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
-    _leftSprite->setPolygonInfo(polyInfo);
-
-    _rightSprite = Sprite::createWithTexture(_rightFB->getRenderTarget()->getTexture());
-    _rightSprite->retain();
-    _rightSprite->setPosition(Vec2(0,0));
-    _rightSprite->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
-    _rightSprite->setPolygonInfo(polyInfo);
+    _fbSprite = Sprite::createWithTexture(_fb->getRenderTarget()->getTexture());
+    _fbSprite->retain();
+    _fbSprite->setPosition(Vec2(0,0));
+    _fbSprite->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
+    _fbSprite->setPolygonInfo(polyInfo);
 }
 
 void VRGeneric::cleanup()
@@ -115,40 +108,22 @@ void VRGeneric::cleanup()
 
 void VRGeneric::render(Scene* scene, Renderer* renderer)
 {
-    auto director = Director::getInstance();
+    auto origVP = Camera::getDefaultViewport();
 
     // FIXME: Use correct eye displacement
     const float eyeOffset = 1;
-    _leftFB->applyFBO();
+    _fb->applyFBO();
+    Camera::setDefaultViewport(_leftEye.viewport);
     scene->render(renderer, Vec3(-eyeOffset,0,0));
-    _leftFB->restoreFBO();
-
-    _rightFB->applyFBO();
+    Camera::setDefaultViewport(_rightEye.viewport);
     scene->render(renderer, Vec3(eyeOffset,0,0));
-    _rightFB->restoreFBO();
+    _fb->restoreFBO();
 
-    GLint viewport[4];
-    glGetIntegerv(GL_VIEWPORT, viewport);
-
-    Mat4 proj2D;
-    Mat4::createOrthographic(_texSize.width, _texSize.height, -1, 1, &proj2D);
-    proj2D.translate(-_texSize.width/2, -_texSize.height/2, 0);
-    proj2D.scale(2);
-    director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION);
-    director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION, proj2D);
-
-
-    glViewport(0, _vrViewSize.height/2 , _vrViewSize.width, _vrViewSize.height);
-    _leftSprite->visit(renderer, Mat4::IDENTITY, 0);
+    Camera::setDefaultViewport(origVP);
+    Camera::getDefaultCamera()->apply();
+    _fbSprite->visit(renderer, Mat4::IDENTITY, 0);
     renderer->render();
-
-    glViewport(_vrViewSize.width, _vrViewSize.height/2 , _vrViewSize.width, _vrViewSize.height);
-    _rightSprite->visit(renderer, Mat4::IDENTITY, 0);
-    renderer->render();
-
-    director->popMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION);
-
-    glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+    Camera::getDefaultCamera()->restore();
 }
 
 NS_CC_END

@@ -24,6 +24,8 @@
 
 #include "platform/CCPlatformMacros.h"
 #include "vr/CCVRGeneric.h"
+#include "vr/CCVRDistortionMesh.h"
+#include "vr/CCVRDistortion.h"
 #include "renderer/CCRenderer.h"
 #include "renderer/CCGLProgramState.h"
 #include "renderer/ccGLStateCache.h"
@@ -126,4 +128,23 @@ void VRGeneric::render(Scene* scene, Renderer* renderer)
     Camera::getDefaultCamera()->restore();
 }
 
+DistortionMesh* VRGeneric::createDistortionMesh(const experimental::Viewport& eyeViewport,
+                                                float textureWidthTanAngle,
+                                                float textureHeightTanAngle,
+                                                float xEyeOffsetTanAngleScreen,
+                                                float yEyeOffsetTanAngleScreen)
+{
+    return nullptr;
+//    return new DistortionMesh(_distortion,
+//                              _distortion,
+//                              _distortion,
+//                              _headMountedDisplay->getScreen()->widthInMeters() / _metersPerTanAngle,
+//                              _headMountedDisplay->getScreen()->heightInMeters() / _metersPerTanAngle,
+//                              xEyeOffsetTanAngleScreen, yEyeOffsetTanAngleScreen,
+//                              textureWidthTanAngle, textureHeightTanAngle,
+//                              eyeViewport->eyeX, eyeViewport->eyeY,
+//                              eyeViewport._left, eyeViewport._bottom,
+//                              eyeViewport._width, eyeViewport._height,
+//                              _vignetteEnabled);
+}
 NS_CC_END

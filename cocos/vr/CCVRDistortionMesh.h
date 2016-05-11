@@ -1,4 +1,5 @@
 /****************************************************************************
+ Copyright (c) 2016 Google Inc.
  Copyright (c) 2016 Chukong Technologies Inc.
 
  http://www.cocos2d-x.org
@@ -22,56 +23,36 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#include "vr/CCVRProtocol.h"
-#include "renderer/CCCustomCommand.h"
-#include "renderer/CCFrameBuffer.h"
+#ifndef CCVRDistortionMesh_hpp
+#define CCVRDistortionMesh_hpp
+
+#include "platform/CCPlatformMacros.h"
 
 NS_CC_BEGIN
 
-class Camera;
-class Sprite;
-class DistortionMesh;
 class Distortion;
 
-struct CC_DLL VREye
-{
-    typedef enum  {
-        MONO,
-        LEFT,
-        RIGHT,
-    } EyeType;
-
-    EyeType type;
-    experimental::Viewport viewport;
-};
-
-class CC_DLL VRGeneric : public VRProtocol
+class DistortionMesh
 {
 public:
-    VRGeneric();
-    virtual ~VRGeneric();
+    DistortionMesh();
+    DistortionMesh(Distortion *distortionRed,
+                   Distortion *distortionGreen,
+                   Distortion *distortionBlue,
+                   float screenWidth, float screenHeight,
+                   float xEyeOffsetScreen, float yEyeOffsetScreen,
+                   float textureWidth, float textureHeight,
+                   float xEyeOffsetTexture, float yEyeOffsetTexture,
+                   float viewportXTexture, float viewportYTexture,
+                   float viewportWidthTexture,
+                   float viewportHeightTexture,
+                   bool vignetteEnabled);
 
-    virtual void setup(GLView* glview);
-    virtual void cleanup();
-    virtual void render(Scene* scene, Renderer* renderer);
-
-protected:
-    DistortionMesh* createDistortionMesh(const experimental::Viewport& eyeViewport,
-                                         float textureWidthTanAngle,
-                                         float textureHeightTanAngle,
-                                         float xEyeOffsetTanAngleScreen,
-                                         float yEyeOffsetTanAngleScreen);
-
-    experimental::FrameBuffer* _fb;
-    Sprite* _fbSprite;
-    Size _texSize;
-    VREye _leftEye;
-    VREye _rightEye;
-    DistortionMesh* _leftDistortion;
-    DistortionMesh* _rightDistortion;
-    Distortion* _distortion;
-    bool _vignetteEnabled;
+    int _indices;
+    int _arrayBufferID;
+    int _elementBufferID;
 };
 
-
 NS_CC_END
+
+#endif /* CCVRDistortionMesh_h */

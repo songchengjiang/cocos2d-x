@@ -1,4 +1,5 @@
 /****************************************************************************
+ Copyright (c) 2016 Google Inc.
  Copyright (c) 2016 Chukong Technologies Inc.
 
  http://www.cocos2d-x.org
@@ -22,56 +23,31 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#include "vr/CCVRProtocol.h"
-#include "renderer/CCCustomCommand.h"
-#include "renderer/CCFrameBuffer.h"
+#ifndef CCVRDistortion_h
+#define CCVRDistortion_h
+
+#include "platform/CCPlatformMacros.h"
 
 NS_CC_BEGIN
 
-class Camera;
-class Sprite;
-class DistortionMesh;
-class Distortion;
-
-struct CC_DLL VREye
-{
-    typedef enum  {
-        MONO,
-        LEFT,
-        RIGHT,
-    } EyeType;
-
-    EyeType type;
-    experimental::Viewport viewport;
-};
-
-class CC_DLL VRGeneric : public VRProtocol
+// Barrel Distortion
+class Distortion
 {
 public:
-    VRGeneric();
-    virtual ~VRGeneric();
+    Distortion();
 
-    virtual void setup(GLView* glview);
-    virtual void cleanup();
-    virtual void render(Scene* scene, Renderer* renderer);
+    void setCoefficients(float *coefficients);
+    float *coefficients();
 
-protected:
-    DistortionMesh* createDistortionMesh(const experimental::Viewport& eyeViewport,
-                                         float textureWidthTanAngle,
-                                         float textureHeightTanAngle,
-                                         float xEyeOffsetTanAngleScreen,
-                                         float yEyeOffsetTanAngleScreen);
+    float distortionFactor(float radius);
+    float distort(float radius);
+    float distortInverse(float radius);
 
-    experimental::FrameBuffer* _fb;
-    Sprite* _fbSprite;
-    Size _texSize;
-    VREye _leftEye;
-    VREye _rightEye;
-    DistortionMesh* _leftDistortion;
-    DistortionMesh* _rightDistortion;
-    Distortion* _distortion;
-    bool _vignetteEnabled;
+private:
+    constexpr static int s_numberOfCoefficients = 2;
+    float _coefficients[s_numberOfCoefficients];
 };
 
-
 NS_CC_END
+
+#endif /* CCVRDistortion_h */

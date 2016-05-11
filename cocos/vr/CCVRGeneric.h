@@ -32,6 +32,7 @@ class Camera;
 class Sprite;
 class DistortionMesh;
 class Distortion;
+class GLProgramState;
 
 struct CC_DLL VREye
 {
@@ -56,6 +57,8 @@ public:
     virtual void render(Scene* scene, Renderer* renderer);
 
 protected:
+    void setupGLProgram();
+    void renderDistortionMesh(DistortionMesh *mesh, GLint textureID);
     DistortionMesh* createDistortionMesh(const experimental::Viewport& eyeViewport,
                                          float textureWidthTanAngle,
                                          float textureHeightTanAngle,
@@ -63,14 +66,16 @@ protected:
                                          float yEyeOffsetTanAngleScreen);
 
     experimental::FrameBuffer* _fb;
-    Sprite* _fbSprite;
     Size _texSize;
     VREye _leftEye;
     VREye _rightEye;
-    DistortionMesh* _leftDistortion;
-    DistortionMesh* _rightDistortion;
+    DistortionMesh* _leftDistortionMesh;
+    DistortionMesh* _rightDistortionMesh;
     Distortion* _distortion;
     bool _vignetteEnabled;
+    float _resolutionScale;
+    
+    GLProgramState* _glProgramState;
 };
 
 

@@ -5605,6 +5605,12 @@
 		B6DD2FF61B04825B00E47F5F /* fastlz.c in Sources */ = {isa = PBXBuildFile; fileRef = B6DD2FA51B04825B00E47F5F /* fastlz.c */; };
 		B6DD2FF71B04825B00E47F5F /* fastlz.h in Headers */ = {isa = PBXBuildFile; fileRef = B6DD2FA61B04825B00E47F5F /* fastlz.h */; };
 		B6DD2FF81B04825B00E47F5F /* fastlz.h in Headers */ = {isa = PBXBuildFile; fileRef = B6DD2FA61B04825B00E47F5F /* fastlz.h */; };
+		BE22D1E41CE1B155006E4D1F /* CCVRGearVR.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BE22D1E21CE1B155006E4D1F /* CCVRGearVR.cpp */; };
+		BE22D1E51CE1B155006E4D1F /* CCVRGearVR.h in Headers */ = {isa = PBXBuildFile; fileRef = BE22D1E31CE1B155006E4D1F /* CCVRGearVR.h */; };
+		BE4E75611CE05BCD00976FAA /* CCVRCardboard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BE4E755F1CE05BCD00976FAA /* CCVRCardboard.cpp */; };
+		BE4E75621CE05BCD00976FAA /* CCVRCardboard.h in Headers */ = {isa = PBXBuildFile; fileRef = BE4E75601CE05BCD00976FAA /* CCVRCardboard.h */; };
+		BEF8B1801CE2DB6200BFE652 /* CCVRDeepoon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BEF8B17E1CE2DB6200BFE652 /* CCVRDeepoon.cpp */; };
+		BEF8B1811CE2DB6200BFE652 /* CCVRDeepoon.h in Headers */ = {isa = PBXBuildFile; fileRef = BEF8B17F1CE2DB6200BFE652 /* CCVRDeepoon.h */; };
 		C50306691B60B583001E6D43 /* CCBoneNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C50306631B60B583001E6D43 /* CCBoneNode.cpp */; };
 		C503066A1B60B583001E6D43 /* CCBoneNode.h in Headers */ = {isa = PBXBuildFile; fileRef = C50306641B60B583001E6D43 /* CCBoneNode.h */; };
 		C503066B1B60B583001E6D43 /* CCSkeletonNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C50306651B60B583001E6D43 /* CCSkeletonNode.cpp */; };
@@ -7638,6 +7644,12 @@
 		B6DD2FA31B04825B00E47F5F /* DetourTileCacheBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DetourTileCacheBuilder.h; sourceTree = "<group>"; };
 		B6DD2FA51B04825B00E47F5F /* fastlz.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = fastlz.c; sourceTree = "<group>"; };
 		B6DD2FA61B04825B00E47F5F /* fastlz.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fastlz.h; sourceTree = "<group>"; };
+		BE22D1E21CE1B155006E4D1F /* CCVRGearVR.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CCVRGearVR.cpp; sourceTree = "<group>"; };
+		BE22D1E31CE1B155006E4D1F /* CCVRGearVR.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCVRGearVR.h; sourceTree = "<group>"; };
+		BE4E755F1CE05BCD00976FAA /* CCVRCardboard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CCVRCardboard.cpp; sourceTree = "<group>"; };
+		BE4E75601CE05BCD00976FAA /* CCVRCardboard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCVRCardboard.h; sourceTree = "<group>"; };
+		BEF8B17E1CE2DB6200BFE652 /* CCVRDeepoon.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CCVRDeepoon.cpp; sourceTree = "<group>"; };
+		BEF8B17F1CE2DB6200BFE652 /* CCVRDeepoon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCVRDeepoon.h; sourceTree = "<group>"; };
 		C50306631B60B583001E6D43 /* CCBoneNode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CCBoneNode.cpp; sourceTree = "<group>"; };
 		C50306641B60B583001E6D43 /* CCBoneNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCBoneNode.h; sourceTree = "<group>"; };
 		C50306651B60B583001E6D43 /* CCSkeletonNode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CCSkeletonNode.cpp; sourceTree = "<group>"; };
@@ -9906,6 +9918,12 @@
 		50F9654D1CD0360000ADE813 /* vr */ = {
 			isa = PBXGroup;
 			children = (
+				BEF8B17E1CE2DB6200BFE652 /* CCVRDeepoon.cpp */,
+				BEF8B17F1CE2DB6200BFE652 /* CCVRDeepoon.h */,
+				BE22D1E21CE1B155006E4D1F /* CCVRGearVR.cpp */,
+				BE22D1E31CE1B155006E4D1F /* CCVRGearVR.h */,
+				BE4E755F1CE05BCD00976FAA /* CCVRCardboard.cpp */,
+				BE4E75601CE05BCD00976FAA /* CCVRCardboard.h */,
 				50F9654E1CD0360000ADE813 /* CCVRGeneric.cpp */,
 				50F9654F1CD0360000ADE813 /* CCVRGeneric.h */,
 				50F965501CD0360000ADE813 /* CCVRProtocol.h */,
@@ -11299,6 +11317,7 @@
 				B6DD2FD11B04825B00E47F5F /* DetourNode.h in Headers */,
 				15AE18F719AAD35000C27E9E /* CCBatchNode.h in Headers */,
 				15AE181419AAD2F700C27E9E /* CCAnimationCurve.h in Headers */,
+				BE22D1E51CE1B155006E4D1F /* CCVRGearVR.h in Headers */,
 				50ABBE631925AB6F00A911A9 /* CCEventListenerAcceleration.h in Headers */,
 				B665E4281AA80A6600DDB1C5 /* CCPUUtil.h in Headers */,
 				B665E2601AA80A6500DDB1C5 /* CCPUDoEnableComponentEventHandlerTranslator.h in Headers */,
@@ -12107,6 +12126,7 @@
 				A0534A651B872FFD006B03E5 /* CCDownloader-apple.h in Headers */,
 				15AE19A119AAD39600C27E9E /* TextAtlasReader.h in Headers */,
 				50ABC0231926664800A911A9 /* CCGLViewImpl-desktop.h in Headers */,
+				BEF8B1811CE2DB6200BFE652 /* CCVRDeepoon.h in Headers */,
 				382384231A2590DA002C4610 /* GameMapReader.h in Headers */,
 				B665E3681AA80A6500DDB1C5 /* CCPUOnTimeObserverTranslator.h in Headers */,
 				B665E3E41AA80A6600DDB1C5 /* CCPUSineForceAffector.h in Headers */,
@@ -12233,6 +12253,7 @@
 				B6DD2FEF1B04825B00E47F5F /* DetourTileCache.h in Headers */,
 				50ABBECD1925AB6F00A911A9 /* s3tc.h in Headers */,
 				B6CAB3651AF9AA1A00B9B856 /* btContinuousConvexCollision.h in Headers */,
+				BE4E75621CE05BCD00976FAA /* CCVRCardboard.h in Headers */,
 				15AE1BD119AAE01E00C27E9E /* CCControlHuePicker.h in Headers */,
 				B5CE6DC01B3BF2B1002B0419 /* UIAbstractCheckButton.h in Headers */,
 				D0FD03571A3B51AA00825BB5 /* CCAllocatorMutex.h in Headers */,
@@ -14502,6 +14523,7 @@
 				B665E36E1AA80A6500DDB1C5 /* CCPUOnVelocityObserverTranslator.cpp in Sources */,
 				15AE190119AAD35000C27E9E /* CCComController.cpp in Sources */,
 				B6CAB4071AF9AA1A00B9B856 /* btMultiBodyJointLimitConstraint.cpp in Sources */,
+				BE22D1E41CE1B155006E4D1F /* CCVRGearVR.cpp in Sources */,
 				C5F516191C8216C60013B695 /* TabControlReader.cpp in Sources */,
 				B6CAB38F1AF9AA1A00B9B856 /* btRaycastCallback.cpp in Sources */,
 				15AE1BE619AAE01E00C27E9E /* CCTableViewCell.cpp in Sources */,
@@ -14583,6 +14605,7 @@
 				B665E2C21AA80A6500DDB1C5 /* CCPUGeometryRotatorTranslator.cpp in Sources */,
 				15AE1A5F19AAD40300C27E9E /* b2ContactManager.cpp in Sources */,
 				B6CAB2451AF9AA1A00B9B856 /* btConvexConvexAlgorithm.cpp in Sources */,
+				BE4E75611CE05BCD00976FAA /* CCVRCardboard.cpp in Sources */,
 				15AE1B9D19AADFDF00C27E9E /* UIVBox.cpp in Sources */,
 				B665E2B61AA80A6500DDB1C5 /* CCPUForceFieldAffector.cpp in Sources */,
 				B6DD2FD51B04825B00E47F5F /* DetourCrowd.cpp in Sources */,
@@ -15032,6 +15055,7 @@
 				B665E3861AA80A6500DDB1C5 /* CCPUPathFollowerTranslator.cpp in Sources */,
 				B29A7DCB19EE1B7700872B35 /* Skeleton.c in Sources */,
 				15AE196E19AAD35700C27E9E /* CCActionTimelineCache.cpp in Sources */,
+				BEF8B1801CE2DB6200BFE652 /* CCVRDeepoon.cpp in Sources */,
 				50ABBEB31925AB6F00A911A9 /* CCUserDefault-apple.mm in Sources */,
 				50ABBEB51925AB6F00A911A9 /* CCUserDefault-android.cpp in Sources */,
 				5E9F61261A3FFE3D0038DE01 /* CCFrustum.cpp in Sources */,

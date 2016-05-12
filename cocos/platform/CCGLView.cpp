@@ -34,6 +34,8 @@ THE SOFTWARE.
 #include "vr/CCVRProtocol.h"
 #include "vr/CCVRGeneric.h"
 #include "vr/CCVRCardboard.h"
+#include "vr/CCVRGearVR.h"
+#include "vr/CCVRDeepoon.h"
 
 NS_CC_BEGIN
 
@@ -493,7 +495,7 @@ void GLView::setVREnabled(bool enabled)
         _vrEnabled = enabled;
         if (_vrEnabled && !_vrImpl)
         {
-            _vrImpl = new VRCardboard;
+            _vrImpl = new VRDeepoon;
             _vrImpl->setup(this);
         }
     }

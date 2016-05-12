@@ -73,8 +73,8 @@ void VRCardboard::render(Scene* scene, Renderer* renderer)
     glDepthMask(true);
     for (unsigned short i = 0; i < CB_EYE_NUM; ++i){
         auto vp = _eyes.eyeParams[i].viewport;
+        Camera::setDefaultViewport(experimental::Viewport(vp.x, vp.y, vp.width, vp.height));
         glScissor(vp.x, vp.y, vp.width, vp.height);
-        glViewport(vp.x, vp.y, vp.width, vp.height);
         glClearColor(0.125f, 0.125f, 0.125f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         const float eyeOffset = ( i ? -0.5f : 0.5f ) * _hmd.device.interLensDistance;

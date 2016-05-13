@@ -44,7 +44,6 @@ VRGeneric::VRGeneric()
 , _leftDistortionMesh(nullptr)
 , _rightDistortionMesh(nullptr)
 , _glProgramState(nullptr)
-, _resolutionScale(CC_CONTENT_SCALE_FACTOR())
 {
 }
 
@@ -64,12 +63,13 @@ void VRGeneric::setup(GLView* glview)
     // set origin to 0,0 in case origin is not 0,0
     auto vp = Camera::getDefaultViewport();
 
-    _leftEye.viewport._bottom = _leftEye.viewport._left = 0;
+    _leftEye.viewport._bottom = vp._bottom/2 + vp._height/4;
+    _leftEye.viewport._left = vp._left/4;
     _leftEye.viewport._width = vp._width/2;
     _leftEye.viewport._height = vp._height/2;
 
-    _rightEye.viewport._bottom = 0;
-    _rightEye.viewport._left = _leftEye.viewport._width;
+    _rightEye.viewport._bottom = vp._bottom/2 + vp._height/4;
+    _rightEye.viewport._left = _leftEye.viewport._width + vp._left/2;
     _rightEye.viewport._width = vp._width/2;
     _rightEye.viewport._height = vp._height/2;
 
@@ -99,7 +99,7 @@ void VRGeneric::cleanup()
 void VRGeneric::render(Scene* scene, Renderer* renderer)
 {
     // FIXME: Use correct eye displacement
-    const float eyeOffset = 1;
+    const float eyeOffset = 0.5;
     _fb->applyFBO();
     Camera::setDefaultViewport(_leftEye.viewport);
     scene->render(renderer, Vec3(-eyeOffset,0,0));
@@ -135,7 +135,6 @@ void VRGeneric::renderDistortionMesh(DistortionMesh *mesh, GLint textureID)
     _glProgramState->setVertexAttribPointer("a_textureCoord", 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(2 * sizeof(float)));
     _glProgramState->setVertexAttribPointer("a_vignette", 1, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(4 * sizeof(float)));
     _glProgramState->setUniformTexture("u_textureSampler", textureID);
-    _glProgramState->setUniformFloat("u_textureCoordScale", 1); //_resolutionScale);
 
     _glProgramState->apply(Mat4::IDENTITY);
 
@@ -147,26 +146,29 @@ void VRGeneric::renderDistortionMesh(DistortionMesh *mesh, GLint textureID)
 
 DistortionMesh* VRGeneric::createDistortionMesh(VREye::EyeType eyeType)
 {
-    const float screenWidth = 3;
-    const float screenHeight = 2;
-    const float eyeViewportLeftTexture = 0.88;
-    const float eyeViewportRightTexture = 0.88;
-    const float textureWidth = 3;
-    const float textureHeight = 2;
-    const float viewportW = screenWidth/2;
-    const float viewportH = screenHeight;
-    const float viewportWTexture = 0;
-    const float viewportHTexture = 0;
+    const float screenWidth = _texSize.width;
+    const float screenHeight = _texSize.height;
     const float xEyeOffsetScreen = (eyeType == VREye::LEFT) ? screenWidth/4 : screenWidth/4*3;
     const float yEyeOffsetScreen = screenHeight/2;
+
+    const float textureWidth = _texSize.width;
+    const float textureHeight = _texSize.height;
+    const float xEyeOffsetTexture = _texSize.width/4;
+    const float yEyeOffsetTexture = _texSize.height/2;
+
+    const float viewportX = 0;
+    const float viewportY = 0;
+    const float viewportW = textureWidth/2;
+    const float viewportH = textureHeight;
+
 
 
     return new DistortionMesh(_distortion,
                               screenWidth, screenHeight,
                               xEyeOffsetScreen, yEyeOffsetScreen,
                               textureWidth, textureHeight,
-                              eyeViewportLeftTexture, eyeViewportRightTexture,
-                              viewportWTexture, viewportHTexture,
+                              xEyeOffsetTexture, yEyeOffsetTexture,
+                              viewportX, viewportY,
                               viewportW, viewportH,
                               _vignetteEnabled);
 }
@@ -180,10 +182,9 @@ void VRGeneric::setupGLProgram()
     attribute float a_vignette;\n\
     varying vec2 v_textureCoord;\n\
     varying float v_vignette;\n\
-    uniform float u_textureCoordScale;\n\
     void main() {\n\
     gl_Position = vec4(a_position, 0.0, 1.0);\n\
-    v_textureCoord = a_textureCoord.xy * u_textureCoordScale;\n\
+    v_textureCoord = a_textureCoord.xy;\n\
     v_vignette = a_vignette;\n\
     }\n";
 

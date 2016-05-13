@@ -50,6 +50,8 @@ DistortionMesh::DistortionMesh(Distortion *distortion,
 
     const float vignetteSizeTanAngle = 0.05f;
 
+    const float maxDistance = sqrtf(textureWidth * textureWidth + textureHeight * textureHeight) / 4;
+
     for (int row = 0; row < rows; row++)
     {
         for (int col = 0; col < cols; col++)
@@ -59,7 +61,7 @@ DistortionMesh::DistortionMesh(Distortion *distortion,
 
             const float xTexture = uTexture * textureWidth - xEyeOffsetTexture;
             const float yTexture = vTexture * textureHeight - yEyeOffsetTexture;
-            const float rTexture = sqrtf(xTexture * xTexture + yTexture * yTexture);
+            const float rTexture = sqrtf(xTexture * xTexture + yTexture * yTexture) / maxDistance;
 
             const float textureToScreen = (rTexture > 0.0f) ? distortion->distortInverse(rTexture) / rTexture : 1.0f;
 

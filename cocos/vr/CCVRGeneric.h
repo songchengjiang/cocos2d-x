@@ -69,7 +69,6 @@ protected:
     DistortionMesh* _rightDistortionMesh;
     Distortion* _distortion;
     bool _vignetteEnabled;
-    float _resolutionScale;
     
     GLProgramState* _glProgramState;
 };

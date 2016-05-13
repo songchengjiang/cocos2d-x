@@ -36,9 +36,7 @@ class DistortionMesh
 {
 public:
     DistortionMesh();
-    DistortionMesh(Distortion *distortionRed,
-                   Distortion *distortionGreen,
-                   Distortion *distortionBlue,
+    DistortionMesh(Distortion *distortion,
                    float screenWidth, float screenHeight,
                    float xEyeOffsetScreen, float yEyeOffsetScreen,
                    float textureWidth, float textureHeight,

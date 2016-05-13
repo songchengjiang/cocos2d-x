@@ -59,11 +59,7 @@ public:
 protected:
     void setupGLProgram();
     void renderDistortionMesh(DistortionMesh *mesh, GLint textureID);
-    DistortionMesh* createDistortionMesh(const experimental::Viewport& eyeViewport,
-                                         float textureWidthTanAngle,
-                                         float textureHeightTanAngle,
-                                         float xEyeOffsetTanAngleScreen,
-                                         float yEyeOffsetTanAngleScreen);
+    DistortionMesh* createDistortionMesh(VREye::EyeType eyeType);
 
     experimental::FrameBuffer* _fb;
     Size _texSize;

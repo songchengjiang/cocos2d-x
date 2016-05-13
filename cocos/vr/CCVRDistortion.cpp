@@ -1,4 +1,5 @@
 /****************************************************************************
+ Copyright (c) 2016 Google Inc.
  Copyright (c) 2016 Chukong Technologies Inc.
 
  http://www.cocos2d-x.org
@@ -22,56 +23,61 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#include "vr/CCVRProtocol.h"
-#include "renderer/CCCustomCommand.h"
-#include "renderer/CCFrameBuffer.h"
+#include "CCVRDistortion.h"
 
 NS_CC_BEGIN
 
-class Camera;
-class Sprite;
-class DistortionMesh;
-class Distortion;
-class GLProgramState;
-
-struct CC_DLL VREye
+Distortion::Distortion()
 {
-    typedef enum  {
-        MONO,
-        LEFT,
-        RIGHT,
-    } EyeType;
+    _coefficients[0] = 0.441f;
+    _coefficients[1] = 0.156f;
+}
 
-    EyeType type;
-    experimental::Viewport viewport;
-};
-
-class CC_DLL VRGeneric : public VRProtocol
+void Distortion::setCoefficients(float *coefficients)
 {
-public:
-    VRGeneric();
-    virtual ~VRGeneric();
+    for (int i = 0; i < s_numberOfCoefficients; i++)
+    {
+        _coefficients[i] = coefficients[i];
+    }
+}
 
-    virtual void setup(GLView* glview);
-    virtual void cleanup();
-    virtual void render(Scene* scene, Renderer* renderer);
+float *Distortion::coefficients()
+{
+    return _coefficients;
+}
 
-protected:
-    void setupGLProgram();
-    void renderDistortionMesh(DistortionMesh *mesh, GLint textureID);
-    DistortionMesh* createDistortionMesh(VREye::EyeType eyeType);
+float Distortion::distortionFactor(float radius)
+{
+    float result = 1.0f;
+    float rFactor = 1.0f;
+    float squaredRadius = radius * radius;
+    for (int i = 0; i < s_numberOfCoefficients; i++)
+    {
+        rFactor *= squaredRadius;
+        result += _coefficients[i] * rFactor;
+    }
+    return result;
+}
 
-    experimental::FrameBuffer* _fb;
-    Size _texSize;
-    VREye _leftEye;
-    VREye _rightEye;
-    DistortionMesh* _leftDistortionMesh;
-    DistortionMesh* _rightDistortionMesh;
-    Distortion* _distortion;
-    bool _vignetteEnabled;
-    
-    GLProgramState* _glProgramState;
-};
+float Distortion::distort(float radius)
+{
+    return radius * distortionFactor(radius);
+}
 
+float Distortion::distortInverse(float radius)
+{
+    float r0 = radius / 0.9f;
+    float r = radius * 0.9f;
+    float dr0 = radius - distort(r0);
+    while (fabsf(r - r0) > 0.0001f)
+    {
+        float dr = radius - distort(r);
+        float r2 = r - dr * ((r - r0) / (dr - dr0));
+        r0 = r;
+        r = r2;
+        dr0 = dr;
+    }
+    return r;
+}
 
 NS_CC_END

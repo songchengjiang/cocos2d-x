@@ -24,6 +24,8 @@
 
 #include "platform/CCPlatformMacros.h"
 #include "vr/CCVRGeneric.h"
+#include "vr/CCVRDistortionMesh.h"
+#include "vr/CCVRDistortion.h"
 #include "renderer/CCRenderer.h"
 #include "renderer/CCGLProgramState.h"
 #include "renderer/ccGLStateCache.h"
@@ -37,13 +39,21 @@
 NS_CC_BEGIN
 
 VRGeneric::VRGeneric()
+: _vignetteEnabled(true)
+, _distortion(nullptr)
+, _leftDistortionMesh(nullptr)
+, _rightDistortionMesh(nullptr)
+, _glProgramState(nullptr)
 {
 }
 
 VRGeneric::~VRGeneric()
 {
-    CC_SAFE_RELEASE(_leftSprite);
-    CC_SAFE_RELEASE(_rightSprite);
+    CC_SAFE_RELEASE(_glProgramState);
+    CC_SAFE_RELEASE(_fb);
+    CC_SAFE_DELETE(_distortion);
+    CC_SAFE_DELETE(_leftDistortionMesh);
+    CC_SAFE_DELETE(_rightDistortionMesh);
 }
 
 void VRGeneric::setup(GLView* glview)
@@ -52,61 +62,34 @@ void VRGeneric::setup(GLView* glview)
 
     // set origin to 0,0 in case origin is not 0,0
     auto vp = Camera::getDefaultViewport();
-    _vrViewSize.width = vp._width/2 + vp._left;
-    _vrViewSize.height = vp._height/2 + vp._bottom;
-    vp._left = vp._bottom = 0;
-    Camera::setDefaultViewport(vp);
+
+    _leftEye.viewport._bottom = vp._bottom/2 + vp._height/4;
+    _leftEye.viewport._left = vp._left/4;
+    _leftEye.viewport._width = vp._width/2;
+    _leftEye.viewport._height = vp._height/2;
+
+    _rightEye.viewport._bottom = vp._bottom/2 + vp._height/4;
+    _rightEye.viewport._left = _leftEye.viewport._width + vp._left/2;
+    _rightEye.viewport._width = vp._width/2;
+    _rightEye.viewport._height = vp._height/2;
+
 
     _texSize = Size(vp._width, vp._height);
 
-    _leftFB = experimental::FrameBuffer::create(1, _texSize.width, _texSize.height);
-    _leftFB->retain();
-    auto leftRT = experimental::RenderTarget::create(_texSize.width, _texSize.height);
-    auto leftDS = experimental::RenderTargetDepthStencil::create(_texSize.width, _texSize.height);
-    _leftFB->attachRenderTarget(leftRT);
-    _leftFB->attachDepthStencilTarget(leftDS);
-    _leftFB->setClearColor(Color4F(1,0,0,1));
+    _fb = experimental::FrameBuffer::create(1, _texSize.width, _texSize.height);
+    _fb->retain();
+    auto rt = experimental::RenderTarget::create(_texSize.width, _texSize.height);
+    auto ds = experimental::RenderTargetDepthStencil::create(_texSize.width, _texSize.height);
+    _fb->attachRenderTarget(rt);
+    _fb->attachDepthStencilTarget(ds);
+    _fb->setClearColor(Color4F(1,0,0,1));
 
-    _rightFB = experimental::FrameBuffer::create(2, _texSize.width, _texSize.height);
-    _rightFB->retain();
-    auto rightRT = experimental::RenderTarget::create(_texSize.width, _texSize.height);
-    auto rightDS = experimental::RenderTargetDepthStencil::create(_texSize.width, _texSize.height);
-    _rightFB->attachRenderTarget(rightRT);
-    _rightFB->attachDepthStencilTarget(rightDS);
-    _rightFB->setClearColor(Color4F(0,0,1,1));
 
-    Size scaledTex = Size(vp._width/2, vp._height/2);
-    V3F_C4B_T2F_Quad quad;
-    quad.bl.colors = Color4B::WHITE;
-    quad.bl.texCoords = Tex2F(0,0);
-    quad.bl.vertices = Vec3(0,0,0);
+    _distortion = new Distortion;
+    _leftDistortionMesh = createDistortionMesh(VREye::LEFT);
+    _rightDistortionMesh = createDistortionMesh(VREye::RIGHT);
 
-    quad.tl.colors = Color4B::WHITE;
-    quad.tl.texCoords = Tex2F(0,1);
-    quad.tl.vertices = Vec3(0,scaledTex.height,0);
-
-    quad.br.colors = Color4B::WHITE;
-    quad.br.texCoords = Tex2F(1,0);
-    quad.br.vertices = Vec3(scaledTex.width,0,0);
-
-    quad.tr.colors = Color4B::WHITE;
-    quad.tr.texCoords = Tex2F(1,1);
-    quad.tr.vertices = Vec3(scaledTex.width,scaledTex.height,0);
-
-    PolygonInfo polyInfo;
-    polyInfo.setQuad(&quad);
-
-    _leftSprite = Sprite::createWithTexture(_leftFB->getRenderTarget()->getTexture());
-    _leftSprite->retain();
-    _leftSprite->setPosition(Vec2(0,0));
-    _leftSprite->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
-    _leftSprite->setPolygonInfo(polyInfo);
-
-    _rightSprite = Sprite::createWithTexture(_rightFB->getRenderTarget()->getTexture());
-    _rightSprite->retain();
-    _rightSprite->setPosition(Vec2(0,0));
-    _rightSprite->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
-    _rightSprite->setPolygonInfo(polyInfo);
+    setupGLProgram();
 }
 
 void VRGeneric::cleanup()
@@ -115,40 +98,111 @@ void VRGeneric::cleanup()
 
 void VRGeneric::render(Scene* scene, Renderer* renderer)
 {
-    auto director = Director::getInstance();
-
     // FIXME: Use correct eye displacement
-    const float eyeOffset = 1;
-    _leftFB->applyFBO();
+    const float eyeOffset = 0.5;
+    _fb->applyFBO();
+    Camera::setDefaultViewport(_leftEye.viewport);
     scene->render(renderer, Vec3(-eyeOffset,0,0));
-    _leftFB->restoreFBO();
-
-    _rightFB->applyFBO();
+    Camera::setDefaultViewport(_rightEye.viewport);
     scene->render(renderer, Vec3(eyeOffset,0,0));
-    _rightFB->restoreFBO();
+    _fb->restoreFBO();
 
-    GLint viewport[4];
-    glGetIntegerv(GL_VIEWPORT, viewport);
+    auto texture = _fb->getRenderTarget()->getTexture();
+    GL::bindTexture2D(texture->getName());
+    _glProgramState->apply(Mat4::IDENTITY);
 
-    Mat4 proj2D;
-    Mat4::createOrthographic(_texSize.width, _texSize.height, -1, 1, &proj2D);
-    proj2D.translate(-_texSize.width/2, -_texSize.height/2, 0);
-    proj2D.scale(2);
-    director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION);
-    director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION, proj2D);
+    GLint origViewport[4];
+    glGetIntegerv(GL_VIEWPORT, origViewport);
+    glViewport(0, 0, _texSize.width, _texSize.height);
+
+    renderDistortionMesh(_leftDistortionMesh, texture->getName());
+    renderDistortionMesh(_rightDistortionMesh, texture->getName());
 
 
-    glViewport(0, _vrViewSize.height/2 , _vrViewSize.width, _vrViewSize.height);
-    _leftSprite->visit(renderer, Mat4::IDENTITY, 0);
-    renderer->render();
+    glViewport(origViewport[0], origViewport[1], origViewport[2], origViewport[3]);
 
-    glViewport(_vrViewSize.width, _vrViewSize.height/2 , _vrViewSize.width, _vrViewSize.height);
-    _rightSprite->visit(renderer, Mat4::IDENTITY, 0);
-    renderer->render();
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-    director->popMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION);
-
-    glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+    CHECK_GL_ERROR_DEBUG();
 }
 
+void VRGeneric::renderDistortionMesh(DistortionMesh *mesh, GLint textureID)
+{
+    glBindBuffer(GL_ARRAY_BUFFER, mesh->_arrayBufferID);
+
+    _glProgramState->setVertexAttribPointer("a_position", 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(0 * sizeof(float)));
+    _glProgramState->setVertexAttribPointer("a_textureCoord", 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(2 * sizeof(float)));
+    _glProgramState->setVertexAttribPointer("a_vignette", 1, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(4 * sizeof(float)));
+    _glProgramState->setUniformTexture("u_textureSampler", textureID);
+
+    _glProgramState->apply(Mat4::IDENTITY);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->_elementBufferID);
+    glDrawElements(GL_TRIANGLE_STRIP, mesh->_indices, GL_UNSIGNED_SHORT, 0);
+
+    CHECK_GL_ERROR_DEBUG();
+}
+
+DistortionMesh* VRGeneric::createDistortionMesh(VREye::EyeType eyeType)
+{
+    const float screenWidth = _texSize.width;
+    const float screenHeight = _texSize.height;
+    const float xEyeOffsetScreen = (eyeType == VREye::LEFT) ? screenWidth/4 : screenWidth/4*3;
+    const float yEyeOffsetScreen = screenHeight/2;
+
+    const float textureWidth = _texSize.width;
+    const float textureHeight = _texSize.height;
+    const float xEyeOffsetTexture = _texSize.width/4;
+    const float yEyeOffsetTexture = _texSize.height/2;
+
+    const float viewportX = 0;
+    const float viewportY = 0;
+    const float viewportW = textureWidth/2;
+    const float viewportH = textureHeight;
+
+
+
+    return new DistortionMesh(_distortion,
+                              screenWidth, screenHeight,
+                              xEyeOffsetScreen, yEyeOffsetScreen,
+                              textureWidth, textureHeight,
+                              xEyeOffsetTexture, yEyeOffsetTexture,
+                              viewportX, viewportY,
+                              viewportW, viewportH,
+                              _vignetteEnabled);
+}
+
+void VRGeneric::setupGLProgram()
+{
+    const GLchar *vertexShader =
+    "\
+    attribute vec2 a_position;\n\
+    attribute vec2 a_textureCoord;\n\
+    attribute float a_vignette;\n\
+    varying vec2 v_textureCoord;\n\
+    varying float v_vignette;\n\
+    void main() {\n\
+    gl_Position = vec4(a_position, 0.0, 1.0);\n\
+    v_textureCoord = a_textureCoord.xy;\n\
+    v_vignette = a_vignette;\n\
+    }\n";
+
+    const GLchar *fragmentShader =
+    "\
+    #ifdef GL_ES\n\
+    precision mediump float;\n\
+    #endif\n\
+    varying vec2 v_textureCoord;\n\
+    varying float v_vignette;\n\
+    uniform sampler2D u_textureSampler;\n\
+    void main() {\n\
+    gl_FragColor = v_vignette * texture2D(u_textureSampler, v_textureCoord);\n\
+    }\n";
+
+    auto program = GLProgram::createWithByteArrays(vertexShader, fragmentShader);
+    _glProgramState = GLProgramState::getOrCreateWithGLProgram(program);
+
+    _glProgramState->retain();
+}
 NS_CC_END

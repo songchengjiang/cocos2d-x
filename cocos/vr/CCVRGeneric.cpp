@@ -82,7 +82,7 @@ void VRGeneric::setup(GLView* glview)
     auto ds = experimental::RenderTargetDepthStencil::create(_texSize.width, _texSize.height);
     _fb->attachRenderTarget(rt);
     _fb->attachDepthStencilTarget(ds);
-    _fb->setClearColor(Color4F(1,0,0,1));
+    _fb->setClearColor(Color4F(0,0,0,1));
 
 
     _distortion = new Distortion;

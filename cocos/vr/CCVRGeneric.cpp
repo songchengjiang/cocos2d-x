@@ -146,10 +146,12 @@ void VRGeneric::renderDistortionMesh(DistortionMesh *mesh, GLint textureID)
 
 DistortionMesh* VRGeneric::createDistortionMesh(VREye::EyeType eyeType)
 {
+    auto vp = Camera::getDefaultViewport();
+
     const float screenWidth = _texSize.width;
     const float screenHeight = _texSize.height;
-    const float xEyeOffsetScreen = (eyeType == VREye::LEFT) ? screenWidth/4 : screenWidth/4*3;
-    const float yEyeOffsetScreen = screenHeight/2;
+    const float xEyeOffsetScreen = (eyeType == VREye::LEFT) ? screenWidth/4 + vp._left : screenWidth/4*3 + vp._left;
+    const float yEyeOffsetScreen = screenHeight/2 + vp._bottom;
 
     const float textureWidth = _texSize.width;
     const float textureHeight = _texSize.height;
@@ -160,8 +162,6 @@ DistortionMesh* VRGeneric::createDistortionMesh(VREye::EyeType eyeType)
     const float viewportY = 0;
     const float viewportW = textureWidth/2;
     const float viewportH = textureHeight;
-
-
 
     return new DistortionMesh(_distortion,
                               screenWidth, screenHeight,

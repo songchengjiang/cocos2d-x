@@ -184,7 +184,7 @@ const std::vector<Camera*>& Scene::getCameras()
     return _cameras;
 }
 
-void Scene::render(Renderer* renderer, const Vec3& eyeOffset)
+void Scene::render(Renderer* renderer, const Mat4& eyeTransform)
 {
     auto director = Director::getInstance();
     Camera* defaultCamera = nullptr;
@@ -200,9 +200,8 @@ void Scene::render(Renderer* renderer, const Vec3& eyeOffset)
         {
             defaultCamera = Camera::_visitingCamera;
         }
-
-        auto origPos = camera->getPosition3D();
-        camera->setPosition3D(origPos + eyeOffset);
+        Mat4 eyeCopy = eyeTransform;
+        camera->setAdditionalTransform(&eyeCopy);
 
         director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION);
         director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION, Camera::_visitingCamera->getViewProjectionMatrix());
@@ -223,7 +222,7 @@ void Scene::render(Renderer* renderer, const Vec3& eyeOffset)
 
         director->popMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION);
 
-        camera->setPosition3D(origPos);
+        camera->setAdditionalTransform(nullptr);
     }
 
 #if CC_USE_3D_PHYSICS && CC_ENABLE_BULLET_INTEGRATION

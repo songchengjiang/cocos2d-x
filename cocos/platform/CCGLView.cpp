@@ -32,7 +32,7 @@ THE SOFTWARE.
 #include "2d/CCScene.h"
 #include "renderer/CCRenderer.h"
 #include "vr/CCVRProtocol.h"
-#include "vr/CCVRGeneric.h"
+#include "vr/CCVRGenericRenderer.h"
 
 NS_CC_BEGIN
 
@@ -481,7 +481,7 @@ void GLView::renderScene(Scene* scene, Renderer* renderer)
     }
     else
     {
-        scene->render(renderer, Vec3::ZERO);
+        scene->render(renderer, Mat4::IDENTITY);
     }
 }
 
@@ -492,7 +492,7 @@ void GLView::setVREnabled(bool enabled)
         _vrEnabled = enabled;
         if (_vrEnabled && !_vrImpl)
         {
-            _vrImpl = new VRGeneric;
+            _vrImpl = new VRGenericRenderer;
             _vrImpl->setup(this);
         }
     }

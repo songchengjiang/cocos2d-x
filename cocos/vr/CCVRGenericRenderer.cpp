@@ -23,9 +23,10 @@
  ****************************************************************************/
 
 #include "platform/CCPlatformMacros.h"
-#include "vr/CCVRGeneric.h"
+#include "vr/CCVRGenericRenderer.h"
 #include "vr/CCVRDistortionMesh.h"
 #include "vr/CCVRDistortion.h"
+#include "vr/CCVRGenericHeadTracker.h"
 #include "renderer/CCRenderer.h"
 #include "renderer/CCGLProgramState.h"
 #include "renderer/ccGLStateCache.h"
@@ -38,17 +39,19 @@
 
 NS_CC_BEGIN
 
-VRGeneric::VRGeneric()
+VRGenericRenderer::VRGenericRenderer()
 : _vignetteEnabled(true)
 , _distortion(nullptr)
 , _leftDistortionMesh(nullptr)
 , _rightDistortionMesh(nullptr)
 , _glProgramState(nullptr)
 {
+    _headTracker = new VRGenericHeadTracker;
 }
 
-VRGeneric::~VRGeneric()
+VRGenericRenderer::~VRGenericRenderer()
 {
+    CC_SAFE_DELETE(_headTracker);
     CC_SAFE_RELEASE(_glProgramState);
     CC_SAFE_RELEASE(_fb);
     CC_SAFE_DELETE(_distortion);
@@ -56,7 +59,7 @@ VRGeneric::~VRGeneric()
     CC_SAFE_DELETE(_rightDistortionMesh);
 }
 
-void VRGeneric::setup(GLView* glview)
+void VRGenericRenderer::setup(GLView* glview)
 {
 //    CC_UNUSED(glview);
 
@@ -92,19 +95,28 @@ void VRGeneric::setup(GLView* glview)
     setupGLProgram();
 }
 
-void VRGeneric::cleanup()
+void VRGenericRenderer::cleanup()
 {
 }
 
-void VRGeneric::render(Scene* scene, Renderer* renderer)
+void VRGenericRenderer::render(Scene* scene, Renderer* renderer)
 {
     // FIXME: Use correct eye displacement
     const float eyeOffset = 0.5;
+
+    Mat4 leftTransform;
+    Mat4::createTranslation(-eyeOffset, 0, 0, &leftTransform);
+    leftTransform *= _headTracker->getLocalRotation();
+
+    Mat4 rightTransform;
+    Mat4::createTranslation(+eyeOffset, 0, 0, &rightTransform);
+    rightTransform *= _headTracker->getLocalRotation();
+
     _fb->applyFBO();
     Camera::setDefaultViewport(_leftEye.viewport);
-    scene->render(renderer, Vec3(-eyeOffset,0,0));
+    scene->render(renderer, leftTransform);
     Camera::setDefaultViewport(_rightEye.viewport);
-    scene->render(renderer, Vec3(eyeOffset,0,0));
+    scene->render(renderer, rightTransform);
     _fb->restoreFBO();
 
     auto texture = _fb->getRenderTarget()->getTexture();
@@ -127,7 +139,7 @@ void VRGeneric::render(Scene* scene, Renderer* renderer)
     CHECK_GL_ERROR_DEBUG();
 }
 
-void VRGeneric::renderDistortionMesh(DistortionMesh *mesh, GLint textureID)
+void VRGenericRenderer::renderDistortionMesh(DistortionMesh *mesh, GLint textureID)
 {
     glBindBuffer(GL_ARRAY_BUFFER, mesh->_arrayBufferID);
 
@@ -144,21 +156,21 @@ void VRGeneric::renderDistortionMesh(DistortionMesh *mesh, GLint textureID)
     CHECK_GL_ERROR_DEBUG();
 }
 
-DistortionMesh* VRGeneric::createDistortionMesh(VREye::EyeType eyeType)
+DistortionMesh* VRGenericRenderer::createDistortionMesh(VREye::EyeType eyeType)
 {
     auto vp = Camera::getDefaultViewport();
 
     const float screenWidth = _texSize.width;
     const float screenHeight = _texSize.height;
-    const float xEyeOffsetScreen = (eyeType == VREye::LEFT) ? screenWidth/4 + vp._left : screenWidth/4*3 + vp._left;
+    const float xEyeOffsetScreen = (eyeType == VREye::LEFT) ? screenWidth/4 + vp._left : screenWidth*3/4 + vp._left;
     const float yEyeOffsetScreen = screenHeight/2 + vp._bottom;
 
     const float textureWidth = _texSize.width;
     const float textureHeight = _texSize.height;
-    const float xEyeOffsetTexture = _texSize.width/4;
+    const float xEyeOffsetTexture = (eyeType == VREye::LEFT) ? _texSize.width/4 : _texSize.width*3/4;
     const float yEyeOffsetTexture = _texSize.height/2;
 
-    const float viewportX = 0;
+    const float viewportX = (eyeType == VREye::LEFT) ? 0 : textureWidth/2;
     const float viewportY = 0;
     const float viewportW = textureWidth/2;
     const float viewportH = textureHeight;
@@ -173,7 +185,7 @@ DistortionMesh* VRGeneric::createDistortionMesh(VREye::EyeType eyeType)
                               _vignetteEnabled);
 }
 
-void VRGeneric::setupGLProgram()
+void VRGenericRenderer::setupGLProgram()
 {
     const GLchar *vertexShader =
     "\
@@ -205,4 +217,5 @@ void VRGeneric::setupGLProgram()
 
     _glProgramState->retain();
 }
+
 NS_CC_END

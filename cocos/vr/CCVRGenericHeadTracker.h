@@ -22,56 +22,35 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+#ifndef CCVRGenericHeadTracker_hpp
+#define CCVRGenericHeadTracker_hpp
+
 #include "vr/CCVRProtocol.h"
-#include "renderer/CCCustomCommand.h"
-#include "renderer/CCFrameBuffer.h"
+#include "math/Vec3.h"
+#include "math/Mat4.h"
 
 NS_CC_BEGIN
 
-class Camera;
-class Sprite;
-class DistortionMesh;
-class Distortion;
-class GLProgramState;
-
-struct CC_DLL VREye
-{
-    typedef enum  {
-        MONO,
-        LEFT,
-        RIGHT,
-    } EyeType;
-
-    EyeType type;
-    experimental::Viewport viewport;
-};
-
-class CC_DLL VRGeneric : public VRProtocol
+class CC_DLL VRGenericHeadTracker : public VRIHeadTracker
 {
 public:
-    VRGeneric();
-    virtual ~VRGeneric();
+    VRGenericHeadTracker();
+    virtual ~VRGenericHeadTracker();
 
-    virtual void setup(GLView* glview);
-    virtual void cleanup();
-    virtual void render(Scene* scene, Renderer* renderer);
+    virtual Vec3 getLocalPosition();
+    virtual Mat4 getLocalRotation();
 
 protected:
-    void setupGLProgram();
-    void renderDistortionMesh(DistortionMesh *mesh, GLint textureID);
-    DistortionMesh* createDistortionMesh(VREye::EyeType eyeType);
+    void startTracking();
+    void stopTracking();
 
-    experimental::FrameBuffer* _fb;
-    Size _texSize;
-    VREye _leftEye;
-    VREye _rightEye;
-    DistortionMesh* _leftDistortionMesh;
-    DistortionMesh* _rightDistortionMesh;
-    Distortion* _distortion;
-    bool _vignetteEnabled;
-    
-    GLProgramState* _glProgramState;
+    Vec3 _localPosition;
+    Mat4 _localRotation;
+
+    Mat4 _displayFromDevice;
+    void* _motionMgr;
 };
 
-
 NS_CC_END
+
+#endif /* CCVRGenericHeadTracker_hpp */

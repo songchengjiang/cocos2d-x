@@ -214,10 +214,10 @@ navmesh/CCNavMeshAgent.cpp \
 navmesh/CCNavMeshDebugDraw.cpp \
 navmesh/CCNavMeshObstacle.cpp \
 navmesh/CCNavMeshUtils.cpp \
-vr/CCVRGeneric.cpp \
-vr/CCVRGearVR.cpp \
-vr/CCVRDeepoon.cpp \
-vr/CCVRCardboard.cpp \
+vr/CCVRGenericRenderer.cpp \
+vr/CCVRGearVRRenderer.cpp \
+vr/CCVRDeepoonRenderer.cpp \
+vr/CCVRCardboardRenderer.cpp \
 vr/cardboard/CbApi.cpp \
 ../external/ConvertUTF/ConvertUTFWrapper.cpp \
 ../external/ConvertUTF/ConvertUTF.c \

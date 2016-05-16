@@ -25,45 +25,27 @@
 #include "vr/CCVRProtocol.h"
 #include "renderer/CCCustomCommand.h"
 #include "renderer/CCFrameBuffer.h"
-#include "gearvr/include/VrApi.h"
-#include "gearvr/include/VrApi_Helpers.h"
-
-#define EYE_NUM VRAPI_FRAME_LAYER_EYE_MAX
-
-typedef struct
-{
-    int						Width;
-    int						Height;
-    int						Multisamples;
-    int						TextureSwapChainLength;
-    int						TextureSwapChainIndex;
-    ovrTextureSwapChain *	ColorTextureSwapChain;
-    GLuint *				DepthBuffers;
-    GLuint *				FrameBuffers;
-} ovrFramebuffer;
+#include "vr/cardboard/CbApi.h"
 
 NS_CC_BEGIN
 
 class Camera;
 class Sprite;
 
-class CC_DLL VRGearVR : public VRProtocol
+class CC_DLL VRCardboardRenderer : public VRIRenderer
 {
 public:
-    VRGearVR();
-    virtual ~VRGearVR();
+    VRCardboardRenderer();
+    virtual ~VRCardboardRenderer();
 
     virtual void setup(GLView* glview);
     virtual void cleanup();
     virtual void render(Scene* scene, Renderer* renderer);
-    
+
 protected:
     
-    ovrFramebuffer _frameBuffer[EYE_NUM];
-    ovrMatrix4f    _projection;
-    ovrJava    _java;
-    ovrMobile *_ovr;
-    long long  _frameIndex;
+    cbHeadMountedDisplay _hmd;
+    cbEyes               _eyes;
 };
 
 NS_CC_END

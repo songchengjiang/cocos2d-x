@@ -25,27 +25,42 @@
 #include "vr/CCVRProtocol.h"
 #include "renderer/CCCustomCommand.h"
 #include "renderer/CCFrameBuffer.h"
-#include "vr/cardboard/CbApi.h"
+#include "deepoon/include/deepoon_sdk_native.h"
+#include "deepoon/include/deepoon_sdk_utils.h"
+
+#define EYE_NUM 2
+
+typedef struct
+{
+    int						Width;
+    int						Height;
+    int						Multisamples;
+    int						TextureSwapNum;
+    int						TextureSwapIndex;
+    GLuint                  *texIDs;
+    GLuint				    *DepthBuffers;
+    GLuint				    *FrameBuffers;
+} dpnnFramebuffer;
 
 NS_CC_BEGIN
 
 class Camera;
 class Sprite;
 
-class CC_DLL VRCardboard : public VRProtocol
+class CC_DLL VRDeepoonRenderer : public VRIRenderer
 {
 public:
-    VRCardboard();
-    virtual ~VRCardboard();
+    VRDeepoonRenderer();
+    virtual ~VRDeepoonRenderer();
 
     virtual void setup(GLView* glview);
     virtual void cleanup();
     virtual void render(Scene* scene, Renderer* renderer);
-
+    
 protected:
     
-    cbHeadMountedDisplay _hmd;
-    cbEyes               _eyes;
+    dpnnFramebuffer _frameBuffer[EYE_NUM];
+    dpnnInstance    _instance;
 };
 
 NS_CC_END

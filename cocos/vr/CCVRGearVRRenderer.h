@@ -25,33 +25,33 @@
 #include "vr/CCVRProtocol.h"
 #include "renderer/CCCustomCommand.h"
 #include "renderer/CCFrameBuffer.h"
-#include "deepoon/include/deepoon_sdk_native.h"
-#include "deepoon/include/deepoon_sdk_utils.h"
+#include "gearvr/include/VrApi.h"
+#include "gearvr/include/VrApi_Helpers.h"
 
-#define EYE_NUM 2
+#define EYE_NUM VRAPI_FRAME_LAYER_EYE_MAX
 
 typedef struct
 {
     int						Width;
     int						Height;
     int						Multisamples;
-    int						TextureSwapNum;
-    int						TextureSwapIndex;
-    GLuint                  *texIDs;
-    GLuint				    *DepthBuffers;
-    GLuint				    *FrameBuffers;
-} dpnnFramebuffer;
+    int						TextureSwapChainLength;
+    int						TextureSwapChainIndex;
+    ovrTextureSwapChain *	ColorTextureSwapChain;
+    GLuint *				DepthBuffers;
+    GLuint *				FrameBuffers;
+} ovrFramebuffer;
 
 NS_CC_BEGIN
 
 class Camera;
 class Sprite;
 
-class CC_DLL VRDeepoon : public VRProtocol
+class CC_DLL VRGearVRRenderer : public VRIRenderer
 {
 public:
-    VRDeepoon();
-    virtual ~VRDeepoon();
+    VRGearVRRenderer();
+    virtual ~VRGearVRRenderer();
 
     virtual void setup(GLView* glview);
     virtual void cleanup();
@@ -59,8 +59,11 @@ public:
     
 protected:
     
-    dpnnFramebuffer _frameBuffer[EYE_NUM];
-    dpnnInstance    _instance;
+    ovrFramebuffer _frameBuffer[EYE_NUM];
+    ovrMatrix4f    _projection;
+    ovrJava    _java;
+    ovrMobile *_ovr;
+    long long  _frameIndex;
 };
 
 NS_CC_END

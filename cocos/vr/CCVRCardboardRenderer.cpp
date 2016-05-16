@@ -23,7 +23,7 @@
  ****************************************************************************/
 
 #include "platform/CCPlatformMacros.h"
-#include "vr/CCVRCardboard.h"
+#include "vr/CCVRCardboardRenderer.h"
 #include "renderer/CCRenderer.h"
 #include "renderer/CCGLProgramState.h"
 #include "renderer/ccGLStateCache.h"
@@ -37,15 +37,15 @@
 
 NS_CC_BEGIN
 
-VRCardboard::VRCardboard()
+VRCardboardRenderer::VRCardboardRenderer()
 {
 }
 
-VRCardboard::~VRCardboard()
+VRCardboardRenderer::~VRCardboardRenderer()
 {
 }
 
-void VRCardboard::setup(GLView* glview)
+void VRCardboardRenderer::setup(GLView* glview)
 {
     CCLOG("JNIENV: 0x%x, ACTIVITY: 0x%x, JAVAVM: 0x%x", (int)JniHelper::getEnv(), (int)JniHelper::getActivity(), (int)JniHelper::getJavaVM());
     cbJava java;
@@ -58,13 +58,14 @@ void VRCardboard::setup(GLView* glview)
     cbapi_EnterVrMode();
 }
 
-void VRCardboard::cleanup()
+void VRCardboardRenderer::cleanup()
 {
     cbapi_LeaveVrMode();
 }
 
-void VRCardboard::render(Scene* scene, Renderer* renderer)
+void VRCardboardRenderer::render(Scene* scene, Renderer* renderer)
 {
+    Mat4 transform;
     GLint viewport[4];
     glGetIntegerv(GL_VIEWPORT, viewport);
     
@@ -78,7 +79,8 @@ void VRCardboard::render(Scene* scene, Renderer* renderer)
         glClearColor(0.125f, 0.125f, 0.125f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         const float eyeOffset = ( i ? -0.5f : 0.5f ) * _hmd.device.interLensDistance;
-        scene->render(renderer, Vec3(eyeOffset,0,0));
+        Mat4::createTranslation(eyeOffset, 0, 0, &transform);
+        scene->render(renderer, transform);
     }
     glDepthMask(false);
     glDisable(GL_SCISSOR_TEST);

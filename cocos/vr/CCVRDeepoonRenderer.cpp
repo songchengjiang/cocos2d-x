@@ -23,7 +23,7 @@
  ****************************************************************************/
 
 #include "platform/CCPlatformMacros.h"
-#include "vr/CCVRGearVR.h"
+#include "vr/CCVRDeepoonRenderer.h"
 #include "renderer/CCRenderer.h"
 #include "renderer/CCGLProgramState.h"
 #include "renderer/ccGLStateCache.h"
@@ -36,40 +36,42 @@
 
 #define GL( func )		func;
 #define NUM_MULTI_SAMPLES	4
+const int EYE_BUFFER_SIZE = 1024;
 
-static void ovrFramebuffer_Clear(ovrFramebuffer * frameBuffer)
+static void dpnnFramebuffer_Clear(dpnnFramebuffer * frameBuffer)
 {
     frameBuffer->Width = 0;
     frameBuffer->Height = 0;
     frameBuffer->Multisamples = 0;
-    frameBuffer->TextureSwapChainLength = 0;
-    frameBuffer->TextureSwapChainIndex = 0;
-    frameBuffer->ColorTextureSwapChain = NULL;
-    frameBuffer->DepthBuffers = NULL;
-    frameBuffer->FrameBuffers = NULL;
+    frameBuffer->TextureSwapNum = 0;
+    frameBuffer->TextureSwapIndex = 0;
+    frameBuffer->texIDs = nullptr;
+    frameBuffer->DepthBuffers = nullptr;
+    frameBuffer->FrameBuffers = nullptr;
 }
 
-static bool ovrFramebuffer_Create(ovrFramebuffer * frameBuffer, const ovrTextureFormat colorFormat, const int width, const int height, const int multisamples)
+static bool dpnnFramebuffer_Create(dpnnFramebuffer * frameBuffer, const int width, const int height, const int multisamples)
 {
     frameBuffer->Width = width;
     frameBuffer->Height = height;
     frameBuffer->Multisamples = multisamples;
     
-    frameBuffer->ColorTextureSwapChain = vrapi_CreateTextureSwapChain(VRAPI_TEXTURE_TYPE_2D, colorFormat, width, height, 1, true);
-    frameBuffer->TextureSwapChainLength = vrapi_GetTextureSwapChainLength(frameBuffer->ColorTextureSwapChain);
-    frameBuffer->DepthBuffers = (GLuint *)malloc(frameBuffer->TextureSwapChainLength * sizeof(GLuint));
-    frameBuffer->FrameBuffers = (GLuint *)malloc(frameBuffer->TextureSwapChainLength * sizeof(GLuint));
+    frameBuffer->TextureSwapNum = 3;
+    frameBuffer->texIDs = (GLuint *)malloc(frameBuffer->TextureSwapNum * sizeof(GLuint));
+    frameBuffer->DepthBuffers = (GLuint *)malloc(frameBuffer->TextureSwapNum * sizeof(GLuint));
+    frameBuffer->FrameBuffers = (GLuint *)malloc(frameBuffer->TextureSwapNum * sizeof(GLuint));
     
     //PFNGLRENDERBUFFERSTORAGEMULTISAMPLEEXTPROC glRenderbufferStorageMultisampleEXT =
     //	(PFNGLRENDERBUFFERSTORAGEMULTISAMPLEEXTPROC)eglGetProcAddress("glRenderbufferStorageMultisampleEXT");
     //PFNGLFRAMEBUFFERTEXTURE2DMULTISAMPLEEXTPROC glFramebufferTexture2DMultisampleEXT =
     //	(PFNGLFRAMEBUFFERTEXTURE2DMULTISAMPLEEXTPROC)eglGetProcAddress("glFramebufferTexture2DMultisampleEXT");
     
-    for (int i = 0; i < frameBuffer->TextureSwapChainLength; i++)
-    {
+    for (int i = 0; i < frameBuffer->TextureSwapNum; i++) {
         // Create the color buffer texture.
-        const GLuint colorTexture = vrapi_GetTextureSwapChainHandle(frameBuffer->ColorTextureSwapChain, i);
-        GL(glBindTexture(GL_TEXTURE_2D, colorTexture));
+        GL(glGenTextures(1, &frameBuffer->texIDs[i]));
+        GL(glBindTexture(GL_TEXTURE_2D, frameBuffer->texIDs[i]));
+        GL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
+                        GL_RGBA, GL_UNSIGNED_BYTE, NULL));
         GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
         GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
         GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
@@ -88,7 +90,7 @@ static bool ovrFramebuffer_Create(ovrFramebuffer * frameBuffer, const ovrTexture
         //	// Create the frame buffer.
         //	GL(glGenFramebuffers(1, &frameBuffer->FrameBuffers[i]));
         //	GL(glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer->FrameBuffers[i]));
-        //	GL(glFramebufferTexture2DMultisampleEXT(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTexture, 0, multisamples));
+        //	GL(glFramebufferTexture2DMultisampleEXT(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, frameBuffer->texIDs[i], 0, multisamples));
         //	GL(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, frameBuffer->DepthBuffers[i]));
         //	GL(GLenum renderFramebufferStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER));
         //	GL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
@@ -100,7 +102,6 @@ static bool ovrFramebuffer_Create(ovrFramebuffer * frameBuffer, const ovrTexture
         //}
         //else
         {
-            CCLOG("OVRHelper::Create buffers");
             // Create depth buffer.
             GL(glGenRenderbuffers(1, &frameBuffer->DepthBuffers[i]));
             GL(glBindRenderbuffer(GL_RENDERBUFFER, frameBuffer->DepthBuffers[i]));
@@ -111,12 +112,11 @@ static bool ovrFramebuffer_Create(ovrFramebuffer * frameBuffer, const ovrTexture
             GL(glGenFramebuffers(1, &frameBuffer->FrameBuffers[i]));
             GL(glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer->FrameBuffers[i]));
             GL(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, frameBuffer->DepthBuffers[i]));
-            GL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTexture, 0));
+            GL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, frameBuffer->texIDs[i], 0));
             GL(GLenum renderFramebufferStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER));
             GL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
             if (renderFramebufferStatus != GL_FRAMEBUFFER_COMPLETE)
             {
-                CCLOG("OVRHelper::Incomplete frame buffer object");
                 return false;
             }
         }
@@ -125,112 +125,91 @@ static bool ovrFramebuffer_Create(ovrFramebuffer * frameBuffer, const ovrTexture
     return true;
 }
 
-static void ovrFramebuffer_Destroy(ovrFramebuffer * frameBuffer)
+static void dpnnFramebuffer_Destroy(dpnnFramebuffer * frameBuffer)
 {
-    GL(glDeleteFramebuffers(frameBuffer->TextureSwapChainLength, frameBuffer->FrameBuffers));
-    GL(glDeleteRenderbuffers(frameBuffer->TextureSwapChainLength, frameBuffer->DepthBuffers));
-    vrapi_DestroyTextureSwapChain(frameBuffer->ColorTextureSwapChain);
+    GL(glDeleteTextures(frameBuffer->TextureSwapNum, frameBuffer->texIDs));
+    GL(glDeleteFramebuffers(frameBuffer->TextureSwapNum, frameBuffer->FrameBuffers));
+    GL(glDeleteRenderbuffers(frameBuffer->TextureSwapNum, frameBuffer->DepthBuffers));
     
+    free(frameBuffer->texIDs);
     free(frameBuffer->DepthBuffers);
     free(frameBuffer->FrameBuffers);
     
-    ovrFramebuffer_Clear(frameBuffer);
+    dpnnFramebuffer_Clear(frameBuffer);
 }
 
-static void ovrFramebuffer_SetCurrent(ovrFramebuffer * frameBuffer)
+static void dpnnFramebuffer_SetCurrent(dpnnFramebuffer * frameBuffer)
 {
-    GL(glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer->FrameBuffers[frameBuffer->TextureSwapChainIndex]));
+    GL(glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer->FrameBuffers[frameBuffer->TextureSwapIndex]));
 }
 
-static void ovrFramebuffer_SetNone()
+static void dpnnFramebuffer_SetNone()
 {
     GL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 }
 
-static void ovrFramebuffer_Resolve(ovrFramebuffer * frameBuffer)
+static void dpnnFramebuffer_Resolve(dpnnFramebuffer * frameBuffer)
 {
     // Discard the depth buffer, so the tiler won't need to write it back out to memory.
-    //const GLenum depthAttachment[1] = { GL_DEPTH_ATTACHMENT };
+    const GLenum depthAttachment[1] = { GL_DEPTH_ATTACHMENT };
     //glInvalidateFramebuffer(GL_FRAMEBUFFER, 1, depthAttachment);
     
     // Flush this frame worth of commands.
     glFlush();
 }
 
-static void ovrFramebuffer_Advance(ovrFramebuffer * frameBuffer)
+static void dpnnFramebuffer_Advance(dpnnFramebuffer * frameBuffer)
 {
     // Advance to the next texture from the set.
-    frameBuffer->TextureSwapChainIndex = (frameBuffer->TextureSwapChainIndex + 1) % frameBuffer->TextureSwapChainLength;
+    frameBuffer->TextureSwapIndex = (frameBuffer->TextureSwapIndex + 1) % frameBuffer->TextureSwapNum;
 }
 
 NS_CC_BEGIN
 
-VRGearVR::VRGearVR()
-    : _ovr(nullptr)
-    , _frameIndex(0)
+VRDeepoonRenderer::VRDeepoonRenderer()
 {
 }
 
-VRGearVR::~VRGearVR()
+VRDeepoonRenderer::~VRDeepoonRenderer()
 {
 }
 
-void VRGearVR::setup(GLView* glview)
+void VRDeepoonRenderer::setup(GLView* glview)
 {
-    _java.ActivityObject = JniHelper::getEnv()->NewGlobalRef(JniHelper::getActivity());
-    _java.Env = JniHelper::getEnv();
-    JniHelper::getEnv()->GetJavaVM(&_java.Vm);
-    const ovrInitParms initParms = vrapi_DefaultInitParms(&_java);
-    int32_t initResult = vrapi_Initialize(&initParms);
+    JniHelper::callStaticVoidMethod("java/lang/System", "loadLibrary", std::string("deepoon_sdk"));
+    _instance = dpnnInit(1, DPNN_UM_DEFAULT, NULL, DPNN_DEVICE_GLES2, JniHelper::getActivity());
     
     for (int eye = 0; eye < EYE_NUM; eye++)
     {
-        ovrFramebuffer_Clear(&_frameBuffer[eye]);
-        ovrFramebuffer_Create(&_frameBuffer[eye],
-                              VRAPI_TEXTURE_FORMAT_8888,
-                              vrapi_GetSystemPropertyInt(&_java, VRAPI_SYS_PROP_SUGGESTED_EYE_TEXTURE_WIDTH),
-                              vrapi_GetSystemPropertyInt(&_java, VRAPI_SYS_PROP_SUGGESTED_EYE_TEXTURE_HEIGHT),
-                              NUM_MULTI_SAMPLES);
-    }
-    
-    const float suggestedEyeFovDegreesX = vrapi_GetSystemPropertyFloat(&_java, VRAPI_SYS_PROP_SUGGESTED_EYE_FOV_DEGREES_X);
-    const float suggestedEyeFovDegreesY = vrapi_GetSystemPropertyFloat(&_java, VRAPI_SYS_PROP_SUGGESTED_EYE_FOV_DEGREES_Y);
-    
-    _projection = ovrMatrix4f_CreateProjectionFov(suggestedEyeFovDegreesX, suggestedEyeFovDegreesY, 0.0f, 0.0f, VRAPI_ZNEAR, 5000.0f);
-    
-    if (!_ovr){
-        ovrModeParms modeParms = vrapi_DefaultModeParms(&_java);
-        _ovr = vrapi_EnterVrMode(&modeParms);
+        dpnnFramebuffer_Clear(&_frameBuffer[eye]);
+        dpnnFramebuffer_Create(&_frameBuffer[eye],
+                               EYE_BUFFER_SIZE,
+                               EYE_BUFFER_SIZE,
+                               NUM_MULTI_SAMPLES);
     }
 }
 
-void VRGearVR::cleanup()
+void VRDeepoonRenderer::cleanup()
 {
-    vrapi_LeaveVrMode(_ovr);
-    for (int eye = 0; eye < EYE_NUM; eye++){
-        ovrFramebuffer_Destroy(&_frameBuffer[eye]);
+    for (int eye = 0; eye < EYE_NUM; eye++)
+    {
+        dpnnFramebuffer_Destroy(&_frameBuffer[eye]);
     }
-    vrapi_Shutdown();
+    dpnnDeinit(_instance);
 }
 
-void VRGearVR::render(Scene* scene, Renderer* renderer)
+void VRDeepoonRenderer::render(Scene* scene, Renderer* renderer)
 {
-    ++_frameIndex;
-    const ovrHeadModelParms headModelParms = vrapi_DefaultHeadModelParms();
-    ovrFrameParms frameParms = vrapi_DefaultFrameParms(&_java, VRAPI_FRAME_INIT_DEFAULT, vrapi_GetTimeInSeconds(), NULL);
-    frameParms.FrameIndex = _frameIndex;
-    frameParms.MinimumVsyncs = 1;
-    frameParms.PerformanceParms = vrapi_DefaultPerformanceParms();
-    frameParms.Layers[VRAPI_FRAME_LAYER_TYPE_WORLD].Flags |= VRAPI_FRAME_LAYER_FLAG_CHROMATIC_ABERRATION_CORRECTION;
-    
+    Mat4 transform;
+    const dpnHmdParms headModelParms = dpnutilDefaultHmdParms();
     GLint viewport[4];
     glGetIntegerv(GL_VIEWPORT, viewport);
     
     glEnable(GL_SCISSOR_TEST);
     glDepthMask(true);
     for (unsigned short i = 0; i < EYE_NUM; ++i){
-        ovrFramebuffer * frameBuffer = &_frameBuffer[i];
-        ovrFramebuffer_SetCurrent(frameBuffer);
+        dpnnFramebuffer * frameBuffer = &_frameBuffer[i];
+        dpnnFramebuffer_SetCurrent(frameBuffer);
         int width = frameBuffer->Width;
         int height = frameBuffer->Height;
         
@@ -238,8 +217,9 @@ void VRGearVR::render(Scene* scene, Renderer* renderer)
         glScissor(0, 0, width, height);
         glClearColor(0.125f, 0.125f, 0.125f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        const float eyeOffset = ( i ? -0.5f : 0.5f ) * headModelParms.InterpupillaryDistance;
-        scene->render(renderer, Vec3(eyeOffset,0,0));
+        const float eyeOffset = ( i ? -0.5f : 0.5f ) * headModelParms.ipd;
+        Mat4::createTranslation(eyeOffset, 0, 0, &transform);
+        scene->render(renderer, transform);
         
         // Explicitly clear the border texels to black because OpenGL-ES does not support GL_CLAMP_TO_BORDER.
         {
@@ -258,19 +238,17 @@ void VRGearVR::render(Scene* scene, Renderer* renderer)
             glScissor(frameBuffer->Width - 1, 0, 1, frameBuffer->Height);
             glClear(GL_COLOR_BUFFER_BIT);
         }
-        ovrFramebuffer_Resolve(frameBuffer);
-        frameParms.Layers[VRAPI_FRAME_LAYER_TYPE_WORLD].Textures[i].ColorTextureSwapChain = frameBuffer->ColorTextureSwapChain;
-        frameParms.Layers[VRAPI_FRAME_LAYER_TYPE_WORLD].Textures[i].TextureSwapChainIndex = frameBuffer->TextureSwapChainIndex;
-        frameParms.Layers[VRAPI_FRAME_LAYER_TYPE_WORLD].Textures[i].TexCoordsFromTanAngles = ovrMatrix4f_TanAngleMatrixFromProjection(&_projection);
-        //frameParms.Layers[VRAPI_FRAME_LAYER_TYPE_WORLD].Textures[i].HeadPose =
-        ovrFramebuffer_Advance(frameBuffer);
+        dpnnFramebuffer_Resolve(frameBuffer);
+        dpnnSetTexture(_instance, (void*)(frameBuffer->texIDs[frameBuffer->TextureSwapIndex]), i == 0 ? DPNN_EYE_LEFT : DPNN_EYE_RIGHT, DPNN_TW_NONE);
+        dpnnFramebuffer_Advance(frameBuffer);
     }
     glDepthMask(false);
     glDisable(GL_SCISSOR_TEST);
     
     glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
-    ovrFramebuffer_SetNone();
-    vrapi_SubmitFrame(_ovr, &frameParms);
+    dpnnRecordPose(_instance, DPNN_EYE_COUNT);
+    dpnnCompose(_instance);
+    dpnnFramebuffer_SetNone();
 }
 
 NS_CC_END

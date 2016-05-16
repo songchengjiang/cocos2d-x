@@ -41,16 +41,7 @@ NS_CC_BEGIN
 Camera* Camera::_visitingCamera = nullptr;
 experimental::Viewport Camera::_defaultViewport;
 
-Camera* Camera::getDefaultCamera()
-{
-    auto scene = Director::getInstance()->getRunningScene();
-    if(scene)
-    {
-        return scene->getDefaultCamera();
-    }
-
-    return nullptr;
-}
+// start static methods
 
 Camera* Camera::create()
 {
@@ -87,6 +78,33 @@ Camera* Camera::createOrthographic(float zoomX, float zoomY, float nearPlane, fl
     CC_SAFE_DELETE(ret);
     return nullptr;
 }
+
+Camera* Camera::getDefaultCamera()
+{
+    auto scene = Director::getInstance()->getRunningScene();
+    if(scene)
+    {
+        return scene->getDefaultCamera();
+    }
+
+    return nullptr;
+}
+
+const experimental::Viewport& Camera::getDefaultViewport()
+{
+    return _defaultViewport;
+}
+void Camera::setDefaultViewport(const experimental::Viewport& vp)
+{
+    _defaultViewport = vp;
+}
+
+const Camera* Camera::getVisitingCamera()
+{
+    return _visitingCamera;
+}
+
+// end static methods
 
 Camera::Camera()
 : _scene(nullptr)
@@ -454,6 +472,11 @@ void Camera::applyViewport()
         glViewport(_viewport._left * _fbo->getWidth(), _viewport._bottom * _fbo->getHeight(),
                    _viewport._width * _fbo->getWidth(), _viewport._height * _fbo->getHeight());
     }
+}
+
+void Camera::setViewport(const experimental::Viewport& vp)
+{
+    _viewport = vp;
 }
 
 void Camera::restore()

@@ -22,41 +22,57 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#ifndef __CC_VR_PROTOCOL_H__
-#define __CC_VR_PROTOCOL_H__
-
-#include <string>
-
-#include "base/ccTypes.h"
-#include "renderer/CCTexture2D.h"
+#include "vr/CCVRProtocol.h"
+#include "renderer/CCCustomCommand.h"
+#include "renderer/CCFrameBuffer.h"
 
 NS_CC_BEGIN
 
-class Scene;
-class Renderer;
-class GLView;
+class Camera;
+class Sprite;
+class DistortionMesh;
+class Distortion;
+class GLProgramState;
+class VRGenericHeadTracker;
 
-class CC_DLL VRIRenderer
+struct CC_DLL VREye
 {
-public:
-    virtual ~VRIRenderer() {}
+    typedef enum  {
+        MONO,
+        LEFT,
+        RIGHT,
+    } EyeType;
 
-    virtual void setup(GLView* glview) = 0;
-    virtual void cleanup() = 0;
-    virtual void render(Scene* scene, Renderer* renderer) = 0;
+    EyeType type;
+    experimental::Viewport viewport;
 };
 
-class CC_DLL VRIHeadTracker
+class CC_DLL VRGenericRenderer : public VRIRenderer
 {
 public:
-    virtual ~VRIHeadTracker() {}
+    VRGenericRenderer();
+    virtual ~VRGenericRenderer();
 
-    // pose
-    virtual Vec3 getLocalPosition() = 0;
-    // rotation
-    virtual Mat4 getLocalRotation() = 0;
+    virtual void setup(GLView* glview);
+    virtual void cleanup();
+    virtual void render(Scene* scene, Renderer* renderer);
+
+protected:
+    void setupGLProgram();
+    void renderDistortionMesh(DistortionMesh *mesh, GLint textureID);
+    DistortionMesh* createDistortionMesh(VREye::EyeType eyeType);
+
+    experimental::FrameBuffer* _fb;
+    Size _texSize;
+    VREye _leftEye;
+    VREye _rightEye;
+    DistortionMesh* _leftDistortionMesh;
+    DistortionMesh* _rightDistortionMesh;
+    Distortion* _distortion;
+    bool _vignetteEnabled;
+    
+    GLProgramState* _glProgramState;
+    VRGenericHeadTracker* _headTracker;
 };
 
 NS_CC_END
-
-#endif // __CC_VR_PROTOCOL_H__

@@ -1,4 +1,5 @@
 /****************************************************************************
+ Copyright (c) 2016 Google Inc.
  Copyright (c) 2016 Chukong Technologies Inc.
 
  http://www.cocos2d-x.org
@@ -22,41 +23,34 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#ifndef __CC_VR_PROTOCOL_H__
-#define __CC_VR_PROTOCOL_H__
+#ifndef CCVRDistortionMesh_hpp
+#define CCVRDistortionMesh_hpp
 
-#include <string>
-
-#include "base/ccTypes.h"
-#include "renderer/CCTexture2D.h"
+#include "platform/CCPlatformMacros.h"
 
 NS_CC_BEGIN
 
-class Scene;
-class Renderer;
-class GLView;
+class Distortion;
 
-class CC_DLL VRIRenderer
+class DistortionMesh
 {
 public:
-    virtual ~VRIRenderer() {}
+    DistortionMesh();
+    DistortionMesh(Distortion *distortion,
+                   float screenWidth, float screenHeight,
+                   float xEyeOffsetScreen, float yEyeOffsetScreen,
+                   float textureWidth, float textureHeight,
+                   float xEyeOffsetTexture, float yEyeOffsetTexture,
+                   float viewportXTexture, float viewportYTexture,
+                   float viewportWidthTexture,
+                   float viewportHeightTexture,
+                   bool vignetteEnabled);
 
-    virtual void setup(GLView* glview) = 0;
-    virtual void cleanup() = 0;
-    virtual void render(Scene* scene, Renderer* renderer) = 0;
-};
-
-class CC_DLL VRIHeadTracker
-{
-public:
-    virtual ~VRIHeadTracker() {}
-
-    // pose
-    virtual Vec3 getLocalPosition() = 0;
-    // rotation
-    virtual Mat4 getLocalRotation() = 0;
+    int _indices;
+    int _arrayBufferID;
+    int _elementBufferID;
 };
 
 NS_CC_END
 
-#endif // __CC_VR_PROTOCOL_H__
+#endif /* CCVRDistortionMesh_h */

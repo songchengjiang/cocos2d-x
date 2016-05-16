@@ -1,4 +1,5 @@
 /****************************************************************************
+ Copyright (c) 2016 Google Inc.
  Copyright (c) 2016 Chukong Technologies Inc.
 
  http://www.cocos2d-x.org
@@ -22,41 +23,61 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#ifndef __CC_VR_PROTOCOL_H__
-#define __CC_VR_PROTOCOL_H__
-
-#include <string>
-
-#include "base/ccTypes.h"
-#include "renderer/CCTexture2D.h"
+#include "CCVRDistortion.h"
 
 NS_CC_BEGIN
 
-class Scene;
-class Renderer;
-class GLView;
-
-class CC_DLL VRIRenderer
+Distortion::Distortion()
 {
-public:
-    virtual ~VRIRenderer() {}
+    _coefficients[0] = 0.441f;
+    _coefficients[1] = 0.156f;
+}
 
-    virtual void setup(GLView* glview) = 0;
-    virtual void cleanup() = 0;
-    virtual void render(Scene* scene, Renderer* renderer) = 0;
-};
-
-class CC_DLL VRIHeadTracker
+void Distortion::setCoefficients(float *coefficients)
 {
-public:
-    virtual ~VRIHeadTracker() {}
+    for (int i = 0; i < s_numberOfCoefficients; i++)
+    {
+        _coefficients[i] = coefficients[i];
+    }
+}
 
-    // pose
-    virtual Vec3 getLocalPosition() = 0;
-    // rotation
-    virtual Mat4 getLocalRotation() = 0;
-};
+float *Distortion::coefficients()
+{
+    return _coefficients;
+}
+
+float Distortion::distortionFactor(float radius)
+{
+    float result = 1.0f;
+    float rFactor = 1.0f;
+    float squaredRadius = radius * radius;
+    for (int i = 0; i < s_numberOfCoefficients; i++)
+    {
+        rFactor *= squaredRadius;
+        result += _coefficients[i] * rFactor;
+    }
+    return result;
+}
+
+float Distortion::distort(float radius)
+{
+    return radius * distortionFactor(radius);
+}
+
+float Distortion::distortInverse(float radius)
+{
+    float r0 = radius / 0.9f;
+    float r = radius * 0.9f;
+    float dr0 = radius - distort(r0);
+    while (fabsf(r - r0) > 0.0001f)
+    {
+        float dr = radius - distort(r);
+        float r2 = r - dr * ((r - r0) / (dr - dr0));
+        r0 = r;
+        r = r2;
+        dr0 = dr;
+    }
+    return r;
+}
 
 NS_CC_END
-
-#endif // __CC_VR_PROTOCOL_H__

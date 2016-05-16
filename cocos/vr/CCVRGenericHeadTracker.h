@@ -22,32 +22,35 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+#ifndef CCVRGenericHeadTracker_hpp
+#define CCVRGenericHeadTracker_hpp
+
 #include "vr/CCVRProtocol.h"
-#include "renderer/CCCustomCommand.h"
-#include "renderer/CCFrameBuffer.h"
+#include "math/Vec3.h"
+#include "math/Mat4.h"
 
 NS_CC_BEGIN
 
-class Camera;
-class Sprite;
-
-class CC_DLL VRGeneric : public VRProtocol
+class CC_DLL VRGenericHeadTracker : public VRIHeadTracker
 {
 public:
-    VRGeneric();
-    virtual ~VRGeneric();
+    VRGenericHeadTracker();
+    virtual ~VRGenericHeadTracker();
 
-    virtual void setup(GLView* glview);
-    virtual void cleanup();
-    virtual void render(Scene* scene, Renderer* renderer);
+    virtual Vec3 getLocalPosition();
+    virtual Mat4 getLocalRotation();
 
 protected:
-    experimental::FrameBuffer* _leftFB;
-    experimental::FrameBuffer* _rightFB;
-    Sprite* _leftSprite;
-    Sprite* _rightSprite;
-    Size _texSize;
-    Size _vrViewSize;
+    void startTracking();
+    void stopTracking();
+
+    Vec3 _localPosition;
+    Mat4 _localRotation;
+
+    Mat4 _displayFromDevice;
+    void* _motionMgr;
 };
 
 NS_CC_END
+
+#endif /* CCVRGenericHeadTracker_hpp */

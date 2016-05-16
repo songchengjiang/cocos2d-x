@@ -88,7 +88,7 @@ NS_CC_BEGIN
 
 class Scene;
 class Renderer;
-class VRProtocol;
+class VRIRenderer;
 
 /**
  * @addtogroup platform
@@ -421,7 +421,7 @@ protected:
 
     // VR stuff
     bool _vrEnabled;
-    VRProtocol* _vrImpl;
+    VRIRenderer* _vrImpl;
 };
 
 // end of platform group

@@ -1,4 +1,5 @@
 /****************************************************************************
+ Copyright (c) 2016 Google Inc.
  Copyright (c) 2016 Chukong Technologies Inc.
 
  http://www.cocos2d-x.org
@@ -22,41 +23,31 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#ifndef __CC_VR_PROTOCOL_H__
-#define __CC_VR_PROTOCOL_H__
+#ifndef CCVRDistortion_h
+#define CCVRDistortion_h
 
-#include <string>
-
-#include "base/ccTypes.h"
-#include "renderer/CCTexture2D.h"
+#include "platform/CCPlatformMacros.h"
 
 NS_CC_BEGIN
 
-class Scene;
-class Renderer;
-class GLView;
-
-class CC_DLL VRIRenderer
+// Barrel Distortion
+class Distortion
 {
 public:
-    virtual ~VRIRenderer() {}
+    Distortion();
 
-    virtual void setup(GLView* glview) = 0;
-    virtual void cleanup() = 0;
-    virtual void render(Scene* scene, Renderer* renderer) = 0;
-};
+    void setCoefficients(float *coefficients);
+    float *coefficients();
 
-class CC_DLL VRIHeadTracker
-{
-public:
-    virtual ~VRIHeadTracker() {}
+    float distortionFactor(float radius);
+    float distort(float radius);
+    float distortInverse(float radius);
 
-    // pose
-    virtual Vec3 getLocalPosition() = 0;
-    // rotation
-    virtual Mat4 getLocalRotation() = 0;
+private:
+    constexpr static int s_numberOfCoefficients = 2;
+    float _coefficients[s_numberOfCoefficients];
 };
 
 NS_CC_END
 
-#endif // __CC_VR_PROTOCOL_H__
+#endif /* CCVRDistortion_h */

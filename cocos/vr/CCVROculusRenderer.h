@@ -37,11 +37,11 @@ NS_CC_BEGIN
 
 class Camera;
 class Sprite;
-class CC_DLL VROculus : public VRProtocol
+class CC_DLL VROculusRenderer : public VRIRenderer
 {
 public:
-    VROculus();
-    virtual ~VROculus();
+    VROculusRenderer();
+    virtual ~VROculusRenderer();
 
     virtual void setup(GLView* glview);
     virtual void cleanup();

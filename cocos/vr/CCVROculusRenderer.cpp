@@ -23,7 +23,7 @@
  ****************************************************************************/
 
 #include "platform/CCPlatformMacros.h"
-#include "vr/CCVROculus.h"
+#include "vr/CCVROculusRenderer.h"
 #include "renderer/CCRenderer.h"
 #include "renderer/CCGLProgramState.h"
 #include "renderer/ccGLStateCache.h"
@@ -211,15 +211,15 @@ struct TextureBuffer
 
 NS_CC_BEGIN
 
-VROculus::VROculus()
+VROculusRenderer::VROculusRenderer()
 {
 }
 
-VROculus::~VROculus()
+VROculusRenderer::~VROculusRenderer()
 {
 }
 
-void VROculus::setup(GLView* glview)
+void VROculusRenderer::setup(GLView* glview)
 {
     auto vp = Camera::getDefaultViewport();
 
@@ -270,7 +270,7 @@ void VROculus::setup(GLView* glview)
     _ld.Header.Flags = ovrLayerFlag_TextureOriginAtBottomLeft;   // Because OpenGL.
 }
 
-void VROculus::cleanup()
+void VROculusRenderer::cleanup()
 {
     if (_mirrorFBO) glDeleteFramebuffers(1, &_mirrorFBO);
     if (_mirrorTexture) ovr_DestroyMirrorTexture(_HMD, reinterpret_cast<ovrTexture*>(_mirrorTexture));
@@ -283,7 +283,7 @@ void VROculus::cleanup()
     //OVR::System::Dest
 }
 
-void VROculus::render(Scene* scene, Renderer* renderer)
+void VROculusRenderer::render(Scene* scene, Renderer* renderer)
 {
 // 	ovrVector3f               ViewOffset[2] = { _eyeRenderDesc[0].HmdToEyeViewOffset, _eyeRenderDesc[1].HmdToEyeViewOffset };
 // 	ovrPosef                  EyeRenderPose[2];
@@ -294,6 +294,7 @@ void VROculus::render(Scene* scene, Renderer* renderer)
 // 	ovr_CalcEyePoses(hmdState.HeadPose.ThePose, ViewOffset, EyeRenderPose);
 // 	//Vec3 defaultPos = Camera::getDefaultCamera()->getPosition3D();
 
+    Mat4 transform;
     GLint viewport[4];
     glGetIntegerv(GL_VIEWPORT, viewport);
 
@@ -307,8 +308,9 @@ void VROculus::render(Scene* scene, Renderer* renderer)
         _ld.RenderPose[eye] = { { 0.0f, 0.0f, 0.0f, 1.0f }, {0.0f, 0.0f, 0.0f} };
         //_ld.SensorSampleTime = sensorSampleTime;
 
+        Mat4::createTranslation(_eyeRenderDesc[eye].HmdToEyeViewOffset.x, _eyeRenderDesc[eye].HmdToEyeViewOffset.y, _eyeRenderDesc[eye].HmdToEyeViewOffset.z, &transform);
         _eyeRenderTexture[eye]->SetAndClearRenderSurface(_eyeDepthBuffer[eye]);
-        scene->render(renderer, Vec3(_eyeRenderDesc[eye].HmdToEyeViewOffset.x, _eyeRenderDesc[eye].HmdToEyeViewOffset.y, _eyeRenderDesc[eye].HmdToEyeViewOffset.z));
+        scene->render(renderer, transform);
         _eyeRenderTexture[eye]->UnsetRenderSurface();
     }
     glDepthMask(false);

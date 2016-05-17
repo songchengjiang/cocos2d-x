@@ -22,47 +22,42 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#include "vr/CCVRProtocol.h"
-#include "renderer/CCCustomCommand.h"
-#include "renderer/CCFrameBuffer.h"
-#include "deepoon/include/deepoon_sdk_native.h"
-#include "deepoon/include/deepoon_sdk_utils.h"
+#include "platform/CCPlatformMacros.h"
+#include "vr/CCVRGearVRHeadTracker.h"
 
-#define EYE_NUM 2
-
-typedef struct
-{
-    int						Width;
-    int						Height;
-    int						Multisamples;
-    int						TextureSwapNum;
-    int						TextureSwapIndex;
-    GLuint                  *texIDs;
-    GLuint				    *DepthBuffers;
-    GLuint				    *FrameBuffers;
-} dpnnFramebuffer;
 
 NS_CC_BEGIN
 
-class Camera;
-class Sprite;
-class VRDeepoonHeadTracker;
-
-class CC_DLL VRDeepoonRenderer : public VRIRenderer
+VRGearVRHeadTracker::VRGearVRHeadTracker()
+    : _ovr(nullptr)
 {
-public:
-    VRDeepoonRenderer();
-    virtual ~VRDeepoonRenderer();
+}
 
-    virtual void setup(GLView* glview);
-    virtual void cleanup();
-    virtual void render(Scene* scene, Renderer* renderer);
-    
-protected:
-    
-    dpnnFramebuffer _frameBuffer[EYE_NUM];
-    dpnnInstance    _instance;
-    VRDeepoonHeadTracker *_headTracker;
-};
+VRGearVRHeadTracker::~VRGearVRHeadTracker()
+{
+}
+
+Vec3 VRGearVRHeadTracker::getLocalPosition()
+{
+    if (!_ovr) return Vec3::ZERO;
+    return Vec3(_tracking.HeadPose.Pose.Position.x, _tracking.HeadPose.Pose.Position.y, _tracking.HeadPose.Pose.Position.z);
+}
+
+Mat4 VRGearVRHeadTracker::getLocalRotation()
+{
+    if (!_ovr) return Mat4::IDENTITY;
+    auto rot = _tracking.HeadPose.Pose.Orientation;
+    Mat4 rotMat;
+    Mat4::createRotation(Quaternion(rot.x, rot.y, rot.z, rot.w), &rotMat);
+    return rotMat;
+}
+
+void VRGearVRHeadTracker::applyTracking(double predictedDisplayTime)
+{
+    if (!_ovr) return;
+    const ovrTracking baseTracking = vrapi_GetPredictedTracking(_ovr, predictedDisplayTime);
+    const ovrHeadModelParms headModelParms = vrapi_DefaultHeadModelParms();
+    _tracking = vrapi_ApplyHeadModel(&headModelParms, &baseTracking);
+}
 
 NS_CC_END

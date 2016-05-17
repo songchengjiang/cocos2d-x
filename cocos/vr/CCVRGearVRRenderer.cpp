@@ -24,6 +24,7 @@
 
 #include "platform/CCPlatformMacros.h"
 #include "vr/CCVRGearVRRenderer.h"
+#include "vr/CCVRGearVRHeadTracker.h"
 #include "renderer/CCRenderer.h"
 #include "renderer/CCGLProgramState.h"
 #include "renderer/ccGLStateCache.h"
@@ -169,10 +170,12 @@ VRGearVRRenderer::VRGearVRRenderer()
     : _ovr(nullptr)
     , _frameIndex(0)
 {
+    _headTracker = new VRGearVRHeadTracker;
 }
 
 VRGearVRRenderer::~VRGearVRRenderer()
 {
+    CC_SAFE_DELETE(_headTracker);
 }
 
 void VRGearVRRenderer::setup(GLView* glview)
@@ -201,11 +204,13 @@ void VRGearVRRenderer::setup(GLView* glview)
     if (!_ovr){
         ovrModeParms modeParms = vrapi_DefaultModeParms(&_java);
         _ovr = vrapi_EnterVrMode(&modeParms);
+        _headTracker->setOVR(_ovr);
     }
 }
 
 void VRGearVRRenderer::cleanup()
 {
+    _headTracker->setOVR(nullptr);
     vrapi_LeaveVrMode(_ovr);
     for (int eye = 0; eye < EYE_NUM; eye++){
         ovrFramebuffer_Destroy(&_frameBuffer[eye]);
@@ -223,6 +228,11 @@ void VRGearVRRenderer::render(Scene* scene, Renderer* renderer)
     frameParms.PerformanceParms = vrapi_DefaultPerformanceParms();
     frameParms.Layers[VRAPI_FRAME_LAYER_TYPE_WORLD].Flags |= VRAPI_FRAME_LAYER_FLAG_CHROMATIC_ABERRATION_CORRECTION;
     
+    const double predictedDisplayTime = vrapi_GetPredictedDisplayTime(_ovr, _frameIndex);
+    _headTracker->applyTracking(predictedDisplayTime);
+    
+    
+    Mat4 headView = _headTracker->getLocalRotation();
     Mat4 transform;
     GLint viewport[4];
     glGetIntegerv(GL_VIEWPORT, viewport);
@@ -241,6 +251,7 @@ void VRGearVRRenderer::render(Scene* scene, Renderer* renderer)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         const float eyeOffset = ( i ? -0.5f : 0.5f ) * headModelParms.InterpupillaryDistance;
         Mat4::createTranslation(eyeOffset, 0, 0, &transform);
+        transform *= headView;
         scene->render(renderer, transform);
         
         // Explicitly clear the border texels to black because OpenGL-ES does not support GL_CLAMP_TO_BORDER.
@@ -264,7 +275,7 @@ void VRGearVRRenderer::render(Scene* scene, Renderer* renderer)
         frameParms.Layers[VRAPI_FRAME_LAYER_TYPE_WORLD].Textures[i].ColorTextureSwapChain = frameBuffer->ColorTextureSwapChain;
         frameParms.Layers[VRAPI_FRAME_LAYER_TYPE_WORLD].Textures[i].TextureSwapChainIndex = frameBuffer->TextureSwapChainIndex;
         frameParms.Layers[VRAPI_FRAME_LAYER_TYPE_WORLD].Textures[i].TexCoordsFromTanAngles = ovrMatrix4f_TanAngleMatrixFromProjection(&_projection);
-        //frameParms.Layers[VRAPI_FRAME_LAYER_TYPE_WORLD].Textures[i].HeadPose =
+        frameParms.Layers[VRAPI_FRAME_LAYER_TYPE_WORLD].Textures[i].HeadPose = _headTracker->getTracking().HeadPose;
         ovrFramebuffer_Advance(frameBuffer);
     }
     glDepthMask(false);

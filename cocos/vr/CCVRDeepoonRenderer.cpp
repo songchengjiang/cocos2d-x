@@ -24,6 +24,7 @@
 
 #include "platform/CCPlatformMacros.h"
 #include "vr/CCVRDeepoonRenderer.h"
+#include "vr/CCVRDeepoonHeadTracker.h"
 #include "renderer/CCRenderer.h"
 #include "renderer/CCGLProgramState.h"
 #include "renderer/ccGLStateCache.h"
@@ -31,6 +32,9 @@
 #include "2d/CCScene.h"
 #include "2d/CCCamera.h"
 #include "2d/CCSprite.h"
+#include "base/CCEventListenerCustom.h"
+#include "base/CCEventDispatcher.h"
+#include "base/CCEventType.h"
 #include "platform/CCGLView.h"
 #include "platform/android/jni/JniHelper.h"
 
@@ -167,17 +171,21 @@ static void dpnnFramebuffer_Advance(dpnnFramebuffer * frameBuffer)
 NS_CC_BEGIN
 
 VRDeepoonRenderer::VRDeepoonRenderer()
+    : _instance(nullptr)
 {
+    _headTracker = new VRDeepoonHeadTracker;
 }
 
 VRDeepoonRenderer::~VRDeepoonRenderer()
 {
+    CC_SAFE_DELETE(_headTracker);
 }
 
 void VRDeepoonRenderer::setup(GLView* glview)
 {
     JniHelper::callStaticVoidMethod("java/lang/System", "loadLibrary", std::string("deepoon_sdk"));
-    _instance = dpnnInit(1, DPNN_UM_DEFAULT, NULL, DPNN_DEVICE_GLES2, JniHelper::getActivity());
+    //_instance = dpnnInit(1, DPNN_UM_DEFAULT, NULL, DPNN_DEVICE_GLES2, JniHelper::getActivity());
+    //_headTracker->setdpnnInstance(&_instance);
     
     for (int eye = 0; eye < EYE_NUM; eye++)
     {
@@ -187,6 +195,26 @@ void VRDeepoonRenderer::setup(GLView* glview)
                                EYE_BUFFER_SIZE,
                                NUM_MULTI_SAMPLES);
     }
+    
+    auto backToForegroundListener = EventListenerCustom::create(EVENT_COME_TO_FOREGROUND,
+                                                                [=](EventCustom*)
+                                                                {
+                                                                    _instance = dpnnInit(1, DPNN_UM_DEFAULT, NULL, DPNN_DEVICE_GLES2, (void*)JniHelper::getActivity());
+                                                                    _headTracker->setdpnnInstance(&_instance);
+                                                                }
+                                                                );
+    Director::getInstance()->getEventDispatcher()->addEventListenerWithFixedPriority(backToForegroundListener, -1);
+    
+    
+    auto foregroundToBackListener = EventListenerCustom::create(EVENT_COME_TO_BACKGROUND,
+                                                                [=](EventCustom*)
+                                                                {
+                                                                    _headTracker->setdpnnInstance(nullptr);
+                                                                    dpnnDeinit(_instance);
+                                                                    _instance = nullptr;
+                                                                }
+                                                                );
+    Director::getInstance()->getEventDispatcher()->addEventListenerWithFixedPriority(foregroundToBackListener, -1);
 }
 
 void VRDeepoonRenderer::cleanup()
@@ -196,10 +224,18 @@ void VRDeepoonRenderer::cleanup()
         dpnnFramebuffer_Destroy(&_frameBuffer[eye]);
     }
     dpnnDeinit(_instance);
+    _headTracker->setdpnnInstance(nullptr);
 }
 
 void VRDeepoonRenderer::render(Scene* scene, Renderer* renderer)
 {
+    if (!_instance) return;
+    auto position = dpnnGetPosition(_instance);
+    auto pose = dpnnGetPose(_instance);
+    CCLOG("(%f, %f, %f, %f)", pose.i, pose.j, pose.k, pose.s);
+    
+    Vec3 pos = _headTracker->getLocalPosition();
+    Mat4 headView = _headTracker->getLocalRotation();
     Mat4 transform;
     const dpnHmdParms headModelParms = dpnutilDefaultHmdParms();
     GLint viewport[4];
@@ -219,6 +255,7 @@ void VRDeepoonRenderer::render(Scene* scene, Renderer* renderer)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         const float eyeOffset = ( i ? -0.5f : 0.5f ) * headModelParms.ipd;
         Mat4::createTranslation(eyeOffset, 0, 0, &transform);
+        transform *= headView;
         scene->render(renderer, transform);
         
         // Explicitly clear the border texels to black because OpenGL-ES does not support GL_CLAMP_TO_BORDER.

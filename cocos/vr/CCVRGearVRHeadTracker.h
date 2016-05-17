@@ -23,46 +23,29 @@
  ****************************************************************************/
 
 #include "vr/CCVRProtocol.h"
-#include "renderer/CCCustomCommand.h"
-#include "renderer/CCFrameBuffer.h"
-#include "deepoon/include/deepoon_sdk_native.h"
-#include "deepoon/include/deepoon_sdk_utils.h"
-
-#define EYE_NUM 2
-
-typedef struct
-{
-    int						Width;
-    int						Height;
-    int						Multisamples;
-    int						TextureSwapNum;
-    int						TextureSwapIndex;
-    GLuint                  *texIDs;
-    GLuint				    *DepthBuffers;
-    GLuint				    *FrameBuffers;
-} dpnnFramebuffer;
+#include "gearvr/include/VrApi.h"
+#include "gearvr/include/VrApi_Helpers.h"
+#include "math/Vec3.h"
+#include "math/Mat4.h"
 
 NS_CC_BEGIN
 
-class Camera;
-class Sprite;
-class VRDeepoonHeadTracker;
-
-class CC_DLL VRDeepoonRenderer : public VRIRenderer
+class CC_DLL VRGearVRHeadTracker : public VRIHeadTracker
 {
 public:
-    VRDeepoonRenderer();
-    virtual ~VRDeepoonRenderer();
+    VRGearVRHeadTracker();
+    virtual ~VRGearVRHeadTracker();
 
-    virtual void setup(GLView* glview);
-    virtual void cleanup();
-    virtual void render(Scene* scene, Renderer* renderer);
+    virtual Vec3 getLocalPosition() override;
+    virtual Mat4 getLocalRotation() override;
     
+    void setOVR(ovrMobile *ovr) { _ovr = ovr; }
+    void applyTracking(double predictedDisplayTime);
+    const ovrTracking& getTracking() const { return _tracking; }
+
 protected:
-    
-    dpnnFramebuffer _frameBuffer[EYE_NUM];
-    dpnnInstance    _instance;
-    VRDeepoonHeadTracker *_headTracker;
+    ovrMobile      *_ovr;
+    ovrTracking     _tracking;
 };
 
 NS_CC_END

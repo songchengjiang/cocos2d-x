@@ -22,47 +22,36 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#include "vr/CCVRProtocol.h"
-#include "renderer/CCCustomCommand.h"
-#include "renderer/CCFrameBuffer.h"
-#include "deepoon/include/deepoon_sdk_native.h"
-#include "deepoon/include/deepoon_sdk_utils.h"
+#include "platform/CCPlatformMacros.h"
+#include "vr/CCVRCardboardHeadTracker.h"
+#include "vr/cardboard/CbApi_Helpers.h"
 
-#define EYE_NUM 2
-
-typedef struct
-{
-    int						Width;
-    int						Height;
-    int						Multisamples;
-    int						TextureSwapNum;
-    int						TextureSwapIndex;
-    GLuint                  *texIDs;
-    GLuint				    *DepthBuffers;
-    GLuint				    *FrameBuffers;
-} dpnnFramebuffer;
 
 NS_CC_BEGIN
 
-class Camera;
-class Sprite;
-class VRDeepoonHeadTracker;
-
-class CC_DLL VRDeepoonRenderer : public VRIRenderer
+VRCardboardHeadTracker::VRCardboardHeadTracker()
 {
-public:
-    VRDeepoonRenderer();
-    virtual ~VRDeepoonRenderer();
+}
 
-    virtual void setup(GLView* glview);
-    virtual void cleanup();
-    virtual void render(Scene* scene, Renderer* renderer);
-    
-protected:
-    
-    dpnnFramebuffer _frameBuffer[EYE_NUM];
-    dpnnInstance    _instance;
-    VRDeepoonHeadTracker *_headTracker;
-};
+VRCardboardHeadTracker::~VRCardboardHeadTracker()
+{
+}
+
+Vec3 VRCardboardHeadTracker::getLocalPosition()
+{
+    auto headView = cbapi_getLastHeadView();
+    headView = cbMatrix4_Inverse(&headView);
+    return Vec3(headView.M[0][3], headView.M[1][3], headView.M[2][3]);
+}
+
+Mat4 VRCardboardHeadTracker::getLocalRotation()
+{
+    auto headView = cbapi_getLastHeadView();
+    headView.M[0][3] = headView.M[1][3] = headView.M[2][3] = 0.0f;
+    Mat4 viewMat;
+    viewMat.set((const GLfloat *)(cbMatrix4_Transpose(&headView).M[0]));
+    viewMat.inverse();
+    return viewMat;
+}
 
 NS_CC_END

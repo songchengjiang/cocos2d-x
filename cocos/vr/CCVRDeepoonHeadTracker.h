@@ -23,46 +23,27 @@
  ****************************************************************************/
 
 #include "vr/CCVRProtocol.h"
-#include "renderer/CCCustomCommand.h"
-#include "renderer/CCFrameBuffer.h"
 #include "deepoon/include/deepoon_sdk_native.h"
 #include "deepoon/include/deepoon_sdk_utils.h"
-
-#define EYE_NUM 2
-
-typedef struct
-{
-    int						Width;
-    int						Height;
-    int						Multisamples;
-    int						TextureSwapNum;
-    int						TextureSwapIndex;
-    GLuint                  *texIDs;
-    GLuint				    *DepthBuffers;
-    GLuint				    *FrameBuffers;
-} dpnnFramebuffer;
+#include "math/Vec3.h"
+#include "math/Mat4.h"
 
 NS_CC_BEGIN
 
-class Camera;
-class Sprite;
-class VRDeepoonHeadTracker;
-
-class CC_DLL VRDeepoonRenderer : public VRIRenderer
+class CC_DLL VRDeepoonHeadTracker : public VRIHeadTracker
 {
 public:
-    VRDeepoonRenderer();
-    virtual ~VRDeepoonRenderer();
+    VRDeepoonHeadTracker();
+    virtual ~VRDeepoonHeadTracker();
 
-    virtual void setup(GLView* glview);
-    virtual void cleanup();
-    virtual void render(Scene* scene, Renderer* renderer);
+    virtual Vec3 getLocalPosition() override;
+    virtual Mat4 getLocalRotation() override;
     
+    void setdpnnInstance(dpnnInstance *instance) { _instance = instance; }
+
 protected:
     
-    dpnnFramebuffer _frameBuffer[EYE_NUM];
-    dpnnInstance    _instance;
-    VRDeepoonHeadTracker *_headTracker;
+    dpnnInstance    *_instance;
 };
 
 NS_CC_END

@@ -31,6 +31,7 @@ NS_CC_BEGIN
 
 class Camera;
 class Sprite;
+class VRCardboardHeadTracker;
 
 class CC_DLL VRCardboardRenderer : public VRIRenderer
 {
@@ -46,6 +47,7 @@ protected:
     
     cbHeadMountedDisplay _hmd;
     cbEyes               _eyes;
+    VRCardboardHeadTracker *_headTracker;
 };
 
 NS_CC_END

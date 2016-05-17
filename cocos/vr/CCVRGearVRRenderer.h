@@ -46,6 +46,7 @@ NS_CC_BEGIN
 
 class Camera;
 class Sprite;
+class VRGearVRHeadTracker;
 
 class CC_DLL VRGearVRRenderer : public VRIRenderer
 {
@@ -64,6 +65,7 @@ protected:
     ovrJava    _java;
     ovrMobile *_ovr;
     long long  _frameIndex;
+    VRGearVRHeadTracker *_headTracker;
 };
 
 NS_CC_END

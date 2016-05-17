@@ -24,6 +24,7 @@
 
 #include "platform/CCPlatformMacros.h"
 #include "vr/CCVRCardboardRenderer.h"
+#include "vr/CCVRCardboardHeadTracker.h"
 #include "renderer/CCRenderer.h"
 #include "renderer/CCGLProgramState.h"
 #include "renderer/ccGLStateCache.h"
@@ -39,10 +40,12 @@ NS_CC_BEGIN
 
 VRCardboardRenderer::VRCardboardRenderer()
 {
+    _headTracker = new VRCardboardHeadTracker;
 }
 
 VRCardboardRenderer::~VRCardboardRenderer()
 {
+    CC_SAFE_DELETE(_headTracker);
 }
 
 void VRCardboardRenderer::setup(GLView* glview)
@@ -65,6 +68,7 @@ void VRCardboardRenderer::cleanup()
 
 void VRCardboardRenderer::render(Scene* scene, Renderer* renderer)
 {
+    Mat4 headView = _headTracker->getLocalRotation();
     Mat4 transform;
     GLint viewport[4];
     glGetIntegerv(GL_VIEWPORT, viewport);
@@ -80,7 +84,26 @@ void VRCardboardRenderer::render(Scene* scene, Renderer* renderer)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         const float eyeOffset = ( i ? -0.5f : 0.5f ) * _hmd.device.interLensDistance;
         Mat4::createTranslation(eyeOffset, 0, 0, &transform);
+        transform *= headView;
         scene->render(renderer, transform);
+        
+        // Explicitly clear the border texels to black because OpenGL-ES does not support GL_CLAMP_TO_BORDER.
+        {
+            // Clear to fully opaque black.
+            glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+            // bottom
+            glScissor(vp.x, vp.y, vp.width, 1);
+            glClear(GL_COLOR_BUFFER_BIT);
+            // top
+            glScissor(vp.x, vp.height - 1, vp.width, 1);
+            glClear(GL_COLOR_BUFFER_BIT);
+            // left
+            glScissor(vp.x, vp.y, 1, vp.height);
+            glClear(GL_COLOR_BUFFER_BIT);
+            // right
+            glScissor(vp.x + vp.width - 1, vp.y, 1, vp.height);
+            glClear(GL_COLOR_BUFFER_BIT);
+        }
     }
     glDepthMask(false);
     glDisable(GL_SCISSOR_TEST);

@@ -22,47 +22,36 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#include "vr/CCVRProtocol.h"
-#include "renderer/CCCustomCommand.h"
-#include "renderer/CCFrameBuffer.h"
-#include "deepoon/include/deepoon_sdk_native.h"
-#include "deepoon/include/deepoon_sdk_utils.h"
+#include "platform/CCPlatformMacros.h"
+#include "vr/CCVRDeepoonHeadTracker.h"
 
-#define EYE_NUM 2
-
-typedef struct
-{
-    int						Width;
-    int						Height;
-    int						Multisamples;
-    int						TextureSwapNum;
-    int						TextureSwapIndex;
-    GLuint                  *texIDs;
-    GLuint				    *DepthBuffers;
-    GLuint				    *FrameBuffers;
-} dpnnFramebuffer;
 
 NS_CC_BEGIN
 
-class Camera;
-class Sprite;
-class VRDeepoonHeadTracker;
-
-class CC_DLL VRDeepoonRenderer : public VRIRenderer
+VRDeepoonHeadTracker::VRDeepoonHeadTracker()
+    : _instance(nullptr)
 {
-public:
-    VRDeepoonRenderer();
-    virtual ~VRDeepoonRenderer();
+}
 
-    virtual void setup(GLView* glview);
-    virtual void cleanup();
-    virtual void render(Scene* scene, Renderer* renderer);
-    
-protected:
-    
-    dpnnFramebuffer _frameBuffer[EYE_NUM];
-    dpnnInstance    _instance;
-    VRDeepoonHeadTracker *_headTracker;
-};
+VRDeepoonHeadTracker::~VRDeepoonHeadTracker()
+{
+}
+
+Vec3 VRDeepoonHeadTracker::getLocalPosition()
+{
+    if (!_instance) return Vec3::ZERO;
+    auto pos = dpnnGetPosition(*_instance);
+    return Vec3(pos.x, pos.y, pos.z);
+}
+
+Mat4 VRDeepoonHeadTracker::getLocalRotation()
+{
+    if (!_instance) return Mat4::IDENTITY;
+    auto pose = dpnnGetPose(*_instance);
+    Mat4 rotMat;
+    Mat4::createRotation(Quaternion(pose.i, pose.j, pose.k, pose.s), &rotMat);
+    //CCLOG("(%f, %f, %f, %f)", pose.i, pose.j, pose.k, pose.s);
+    return rotMat;
+}
 
 NS_CC_END

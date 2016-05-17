@@ -216,8 +216,11 @@ navmesh/CCNavMeshObstacle.cpp \
 navmesh/CCNavMeshUtils.cpp \
 vr/CCVRGenericRenderer.cpp \
 vr/CCVRGearVRRenderer.cpp \
+vr/CCVRGearVRHeadTracker.cpp \
 vr/CCVRDeepoonRenderer.cpp \
+vr/CCVRDeepoonHeadTracker.cpp \
 vr/CCVRCardboardRenderer.cpp \
+vr/CCVRCardboardHeadTracker.cpp \
 vr/cardboard/CbApi.cpp \
 ../external/ConvertUTF/ConvertUTFWrapper.cpp \
 ../external/ConvertUTF/ConvertUTF.c \

@@ -1956,10 +1956,10 @@
     <ClCompile Include="..\editor-support\cocostudio\LocalizationManager.cpp">
       <Filter>cocostudio\json</Filter>
     </ClCompile>
-    <ClCompile Include="..\vr\CCVRGeneric.cpp">
+    <ClCompile Include="..\vr\CCVROculusRenderer.cpp">
       <Filter>vr</Filter>
     </ClCompile>
-    <ClCompile Include="..\vr\CCVROculus.cpp">
+    <ClCompile Include="..\vr\CCVROculusHeadTracker.cpp">
       <Filter>vr</Filter>
     </ClCompile>
   </ItemGroup>
@@ -3824,13 +3824,13 @@
     <ClInclude Include="..\editor-support\cocostudio\LocalizationManager.h">
       <Filter>cocostudio\json</Filter>
     </ClInclude>
-    <ClInclude Include="..\vr\CCVRGeneric.h">
-      <Filter>vr</Filter>
-    </ClInclude>
     <ClInclude Include="..\vr\CCVRProtocol.h">
       <Filter>vr</Filter>
     </ClInclude>
-    <ClInclude Include="..\vr\CCVROculus.h">
+    <ClInclude Include="..\vr\CCVROculusRenderer.h">
+      <Filter>vr</Filter>
+    </ClInclude>
+    <ClInclude Include="..\vr\CCVROculusHeadTracker.h">
       <Filter>vr</Filter>
     </ClInclude>
   </ItemGroup>

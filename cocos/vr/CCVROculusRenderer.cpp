@@ -24,6 +24,7 @@
 
 #include "platform/CCPlatformMacros.h"
 #include "vr/CCVROculusRenderer.h"
+#include "vr/CCVROculusHeadTracker.h"
 #include "renderer/CCRenderer.h"
 #include "renderer/CCGLProgramState.h"
 #include "renderer/ccGLStateCache.h"
@@ -213,10 +214,12 @@ NS_CC_BEGIN
 
 VROculusRenderer::VROculusRenderer()
 {
+    _headTracker = new VROculusHeadTracker;
 }
 
 VROculusRenderer::~VROculusRenderer()
 {
+    CC_SAFE_DELETE(_headTracker);
 }
 
 void VROculusRenderer::setup(GLView* glview)
@@ -268,10 +271,13 @@ void VROculusRenderer::setup(GLView* glview)
 
     _ld.Header.Type = ovrLayerType_EyeFov;
     _ld.Header.Flags = ovrLayerFlag_TextureOriginAtBottomLeft;   // Because OpenGL.
+
+    _headTracker->setHMD(_HMD);
 }
 
 void VROculusRenderer::cleanup()
 {
+    _headTracker->setHMD(nullptr);
     if (_mirrorFBO) glDeleteFramebuffers(1, &_mirrorFBO);
     if (_mirrorTexture) ovr_DestroyMirrorTexture(_HMD, reinterpret_cast<ovrTexture*>(_mirrorTexture));
     for (int eye = 0; eye < EYE_NUM; ++eye){
@@ -285,14 +291,23 @@ void VROculusRenderer::cleanup()
 
 void VROculusRenderer::render(Scene* scene, Renderer* renderer)
 {
-// 	ovrVector3f               ViewOffset[2] = { _eyeRenderDesc[0].HmdToEyeViewOffset, _eyeRenderDesc[1].HmdToEyeViewOffset };
-// 	ovrPosef                  EyeRenderPose[2];
 // 	double           ftiming = ovr_GetPredictedDisplayTime(_HMD, 0);
 // 	// Keeping sensorSampleTime as close to ovr_GetTrackingState as possible - fed into the layer
 // 	double           sensorSampleTime = ovr_GetTimeInSeconds();
 // 	ovrTrackingState hmdState = ovr_GetTrackingState(_HMD, ftiming, ovrTrue);
-// 	ovr_CalcEyePoses(hmdState.HeadPose.ThePose, ViewOffset, EyeRenderPose);
 // 	//Vec3 defaultPos = Camera::getDefaultCamera()->getPosition3D();
+
+    ovrVector3f               ViewOffset[2] = { _eyeRenderDesc[0].HmdToEyeViewOffset, _eyeRenderDesc[1].HmdToEyeViewOffset };
+    ovrPosef                  EyeRenderPose[2];
+    double ftiming = ovr_GetPredictedDisplayTime(_HMD, 0);
+    double sensorSampleTime = ovr_GetTimeInSeconds();
+    _headTracker->applyTracking(ftiming);
+    _ld.SensorSampleTime = sensorSampleTime;
+    ovr_CalcEyePoses(_headTracker->getTracking().HeadPose.ThePose, ViewOffset, EyeRenderPose);
+
+    Mat4 headView;
+    Mat4::createTranslation(_headTracker->getLocalPosition(), &headView);
+    headView *= _headTracker->getLocalRotation();
 
     Mat4 transform;
     GLint viewport[4];
@@ -305,11 +320,11 @@ void VROculusRenderer::render(Scene* scene, Renderer* renderer)
         _ld.ColorTexture[eye] = _eyeRenderTexture[eye]->TextureSet;
         _ld.Viewport[eye] = OVR::Recti(_eyeRenderTexture[eye]->GetSize());
         _ld.Fov[eye] = _eyeRenderDesc[eye].Fov;
-        _ld.RenderPose[eye] = { { 0.0f, 0.0f, 0.0f, 1.0f }, {0.0f, 0.0f, 0.0f} };
-        //_ld.SensorSampleTime = sensorSampleTime;
+        _ld.RenderPose[eye] = EyeRenderPose[eye];
 
-        Mat4::createTranslation(_eyeRenderDesc[eye].HmdToEyeViewOffset.x, _eyeRenderDesc[eye].HmdToEyeViewOffset.y, _eyeRenderDesc[eye].HmdToEyeViewOffset.z, &transform);
+        Mat4::createTranslation(ViewOffset[eye].x, ViewOffset[eye].y, ViewOffset[eye].z, &transform);
         _eyeRenderTexture[eye]->SetAndClearRenderSurface(_eyeDepthBuffer[eye]);
+        transform *= headView;
         scene->render(renderer, transform);
         _eyeRenderTexture[eye]->UnsetRenderSurface();
     }

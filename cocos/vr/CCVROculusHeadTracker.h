@@ -23,42 +23,29 @@
  ****************************************************************************/
 
 #include "vr/CCVRProtocol.h"
-#include "renderer/CCCustomCommand.h"
-#include "renderer/CCFrameBuffer.h"
-#include "oculus/ovr/OVR_CAPI_GL.h"
-#include "oculus/ovr/Extras/OVR_Math.h"
-
-#define EYE_NUM 2
-
-struct DepthBuffer;
-struct TextureBuffer;
+#include "oculus/ovr/OVR_CAPI.h"
+#include "math/Vec3.h"
+#include "math/Mat4.h"
 
 NS_CC_BEGIN
 
-class Camera;
-class Sprite;
-class VROculusHeadTracker;
-
-class CC_DLL VROculusRenderer : public VRIRenderer
+class CC_DLL VROculusHeadTracker : public VRIHeadTracker
 {
 public:
-    VROculusRenderer();
-    virtual ~VROculusRenderer();
+    VROculusHeadTracker();
+    virtual ~VROculusHeadTracker();
 
-    virtual void setup(GLView* glview);
-    virtual void cleanup();
-    virtual void render(Scene* scene, Renderer* renderer);
+    virtual Vec3 getLocalPosition() override;
+    virtual Mat4 getLocalRotation() override;
+    
+    void setHMD(const ovrHmd &hmd) { _HMD = hmd; }
+    void applyTracking(double predictedDisplayTime);
+    const ovrTrackingState& getTracking() const { return _tracking; }
 
 protected:
-
-    TextureBuffer   *_eyeRenderTexture[EYE_NUM];
-    DepthBuffer     *_eyeDepthBuffer[EYE_NUM];
-    ovrEyeRenderDesc _eyeRenderDesc[EYE_NUM];
-    GLuint           _mirrorFBO;
-    ovrGLTexture    *_mirrorTexture;
+    
     ovrHmd           _HMD;
-    ovrLayerEyeFov   _ld;
-    VROculusHeadTracker *_headTracker;
+    ovrTrackingState _tracking;
 };
 
 NS_CC_END

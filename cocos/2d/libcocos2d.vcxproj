@@ -670,8 +670,8 @@ xcopy /Y /Q "$(ProjectDir)..\..\external\chipmunk\prebuilt\win32\release-lib\*.*
     <ClCompile Include="..\ui\UIVBox.cpp" />
     <ClCompile Include="..\ui\UIWebView.cpp" />
     <ClCompile Include="..\ui\UIWidget.cpp" />
-    <ClCompile Include="..\vr\CCVRGeneric.cpp" />
-    <ClCompile Include="..\vr\CCVROculus.cpp" />
+    <ClCompile Include="..\vr\CCVROculusHeadTracker.cpp" />
+    <ClCompile Include="..\vr\CCVROculusRenderer.cpp" />
     <ClCompile Include="CCAction.cpp" />
     <ClCompile Include="CCActionCamera.cpp" />
     <ClCompile Include="CCActionCatmullRom.cpp" />
@@ -1297,8 +1297,8 @@ xcopy /Y /Q "$(ProjectDir)..\..\external\chipmunk\prebuilt\win32\release-lib\*.*
     <ClInclude Include="..\ui\UIWebView-inl.h" />
     <ClInclude Include="..\ui\UIWebView.h" />
     <ClInclude Include="..\ui\UIWidget.h" />
-    <ClInclude Include="..\vr\CCVRGeneric.h" />
-    <ClInclude Include="..\vr\CCVROculus.h" />
+    <ClInclude Include="..\vr\CCVROculusHeadTracker.h" />
+    <ClInclude Include="..\vr\CCVROculusRenderer.h" />
     <ClInclude Include="..\vr\CCVRProtocol.h" />
     <ClInclude Include="CCAction.h" />
     <ClInclude Include="CCActionCamera.h" />

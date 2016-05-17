@@ -22,43 +22,39 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#include "vr/CCVRProtocol.h"
-#include "renderer/CCCustomCommand.h"
-#include "renderer/CCFrameBuffer.h"
-#include "oculus/ovr/OVR_CAPI_GL.h"
-#include "oculus/ovr/Extras/OVR_Math.h"
+#include "platform/CCPlatformMacros.h"
+#include "vr/CCVROculusHeadTracker.h"
 
-#define EYE_NUM 2
-
-struct DepthBuffer;
-struct TextureBuffer;
 
 NS_CC_BEGIN
 
-class Camera;
-class Sprite;
-class VROculusHeadTracker;
-
-class CC_DLL VROculusRenderer : public VRIRenderer
+VROculusHeadTracker::VROculusHeadTracker()
+    : _HMD(nullptr)
 {
-public:
-    VROculusRenderer();
-    virtual ~VROculusRenderer();
+}
 
-    virtual void setup(GLView* glview);
-    virtual void cleanup();
-    virtual void render(Scene* scene, Renderer* renderer);
+VROculusHeadTracker::~VROculusHeadTracker()
+{
+}
 
-protected:
+Vec3 VROculusHeadTracker::getLocalPosition()
+{
+    if (!_HMD) return Vec3::ZERO;
+    return Vec3(_tracking.HeadPose.ThePose.Position.x, _tracking.HeadPose.ThePose.Position.y, _tracking.HeadPose.ThePose.Position.z);
+}
 
-    TextureBuffer   *_eyeRenderTexture[EYE_NUM];
-    DepthBuffer     *_eyeDepthBuffer[EYE_NUM];
-    ovrEyeRenderDesc _eyeRenderDesc[EYE_NUM];
-    GLuint           _mirrorFBO;
-    ovrGLTexture    *_mirrorTexture;
-    ovrHmd           _HMD;
-    ovrLayerEyeFov   _ld;
-    VROculusHeadTracker *_headTracker;
-};
+Mat4 VROculusHeadTracker::getLocalRotation()
+{
+    if (!_HMD) return Mat4::IDENTITY;
+    Mat4 rotMat;
+    Mat4::createRotation(Quaternion(_tracking.HeadPose.ThePose.Orientation.x, _tracking.HeadPose.ThePose.Orientation.y, _tracking.HeadPose.ThePose.Orientation.z, _tracking.HeadPose.ThePose.Orientation.w), &rotMat);
+    return rotMat;
+}
+
+void cocos2d::VROculusHeadTracker::applyTracking(double predictedDisplayTime)
+{
+    if (!_HMD) return;
+    _tracking = ovr_GetTrackingState(_HMD, predictedDisplayTime, ovrTrue);
+}
 
 NS_CC_END

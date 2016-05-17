@@ -109,13 +109,13 @@ void VRGenericRenderer::render(Scene* scene, Renderer* renderer)
     // FIXME: Use correct eye displacement
     const float eyeOffset = 0.5;
 
-    auto headRotation = _headTracker->getLocalRotation().getInversed();
+    auto headRotation = _headTracker->getLocalRotation();
     Mat4 leftTransform;
-    Mat4::createTranslation(-eyeOffset, 0, 0, &leftTransform);
+    Mat4::createTranslation(eyeOffset, 0, 0, &leftTransform);
     leftTransform *= headRotation;
 
     Mat4 rightTransform;
-    Mat4::createTranslation(+eyeOffset, 0, 0, &rightTransform);
+    Mat4::createTranslation(-eyeOffset, 0, 0, &rightTransform);
     rightTransform *= headRotation;
 
     _fb->applyFBO();

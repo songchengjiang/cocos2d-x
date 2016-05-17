@@ -202,7 +202,8 @@ void Scene::render(Renderer* renderer, const Mat4& eyeTransform)
         }
 
         Mat4 eyeCopy = camera->getNodeToParentTransform();
-        camera->setNodeToParentTransform(eyeCopy * eyeTransform);
+        // eyeTransform is in "camera/view" coordinates. Convert it to "model" coordinates
+        camera->setNodeToParentTransform(eyeCopy * eyeTransform.getInversed());
 
         director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION);
         director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION, Camera::_visitingCamera->getViewProjectionMatrix());

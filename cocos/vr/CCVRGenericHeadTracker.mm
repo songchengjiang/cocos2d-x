@@ -1,4 +1,5 @@
 /****************************************************************************
+ Copyright (c) 2016 Google Inc.
  Copyright (c) 2016 Chukong Technologies Inc.
 
  http://www.cocos2d-x.org
@@ -147,12 +148,6 @@ Vec3 VRGenericHeadTracker::getLocalPosition()
 Mat4 VRGenericHeadTracker::getLocalRotation()
 {
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
-    static int counter = 0;
-
-    // skip some samples
-    if (counter++ < 10)
-        return Mat4::IDENTITY;
-
     CMMotionManager* motionMgr = (CMMotionManager*)_motionMgr;
     CMDeviceMotion *motion = motionMgr.deviceMotion;
 
@@ -160,8 +155,7 @@ Mat4 VRGenericHeadTracker::getLocalRotation()
     Mat4 inertialReferenceFrameToDevice0 = matrixFromRotationMatrix(rotationMatrix); // note the matrix inversion
     Mat4 inertialReferenceFrameToDevice = inertialReferenceFrameToDevice0.getTransposed();
     Mat4 worldToDevice =  inertialReferenceFrameToDevice * _worldToInertialReferenceFrame;
-    auto ret =  _deviceToDisplay * worldToDevice;
-    return ret;
+    return  _deviceToDisplay * worldToDevice;
 
 #else
     

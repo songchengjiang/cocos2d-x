@@ -99,6 +99,11 @@ void VRGenericRenderer::cleanup()
 {
 }
 
+VRIHeadTracker* VRGenericRenderer::getHeadTracker()
+{
+    return _headTracker;
+}
+
 void VRGenericRenderer::render(Scene* scene, Renderer* renderer)
 {
     // FIXME: Use correct eye displacement

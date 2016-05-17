@@ -45,9 +45,10 @@ protected:
     void stopTracking();
 
     Vec3 _localPosition;
-    Mat4 _localRotation;
 
-    Mat4 _displayFromDevice;
+    Mat4 _deviceToDisplay;
+    Mat4 _worldToInertialReferenceFrame;
+
     void* _motionMgr;
 };
 

@@ -200,8 +200,9 @@ void Scene::render(Renderer* renderer, const Mat4& eyeTransform)
         {
             defaultCamera = Camera::_visitingCamera;
         }
-        Mat4 eyeCopy = eyeTransform;
-        camera->setAdditionalTransform(&eyeCopy);
+
+        Mat4 eyeCopy = camera->getNodeToParentTransform();
+        camera->setNodeToParentTransform(eyeCopy * eyeTransform);
 
         director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION);
         director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION, Camera::_visitingCamera->getViewProjectionMatrix());
@@ -222,7 +223,7 @@ void Scene::render(Renderer* renderer, const Mat4& eyeTransform)
 
         director->popMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION);
 
-        camera->setAdditionalTransform(nullptr);
+        camera->setNodeToParentTransform(eyeCopy);
     }
 
 #if CC_USE_3D_PHYSICS && CC_ENABLE_BULLET_INTEGRATION

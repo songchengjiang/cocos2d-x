@@ -29,6 +29,7 @@ THE SOFTWARE.
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <functional>
 #include "platform/CCPlatformMacros.h"
 
 NS_CC_BEGIN
@@ -46,6 +47,7 @@ public:
     static void setJavaVM(JavaVM *javaVM);
     static JavaVM* getJavaVM();
     static JNIEnv* getEnv();
+    static jobject getActivity();
 
     static bool setClassLoaderFrom(jobject activityInstance);
     static bool getStaticMethodInfo(JniMethodInfo &methodinfo,
@@ -61,6 +63,7 @@ public:
 
     static jmethodID loadclassMethod_methodID;
     static jobject classloader;
+    static std::function<void()> classloaderCallback;
 
     template <typename... Ts>
     static void callStaticVoidMethod(const std::string& className, 
@@ -174,6 +177,8 @@ private:
                                                  const char *paramCode);
 
     static JavaVM* _psJavaVM;
+    
+    static jobject _activity;
 
     static jstring convert(cocos2d::JniMethodInfo& t, const char* x);
 

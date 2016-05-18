@@ -29,6 +29,7 @@ THE SOFTWARE.
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <functional>
 #include "platform/CCPlatformMacros.h"
 
 NS_CC_BEGIN
@@ -62,6 +63,7 @@ public:
 
     static jmethodID loadclassMethod_methodID;
     static jobject classloader;
+    static std::function<void()> classloaderCallback;
 
     template <typename... Ts>
     static void callStaticVoidMethod(const std::string& className, 

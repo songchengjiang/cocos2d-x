@@ -170,6 +170,18 @@ static void dpnnFramebuffer_Advance(dpnnFramebuffer * frameBuffer)
 
 NS_CC_BEGIN
 
+class HelpClassLoader
+{
+public:
+    HelpClassLoader(){
+        JniHelper::classloaderCallback = []{
+            JniHelper::callStaticVoidMethod("java/lang/System", "loadLibrary", std::string("deepoon_sdk"));
+        };
+    }
+};
+
+static HelpClassLoader g_classLoader;
+
 VRDeepoonRenderer::VRDeepoonRenderer()
     : _instance(nullptr)
 {
@@ -183,7 +195,7 @@ VRDeepoonRenderer::~VRDeepoonRenderer()
 
 void VRDeepoonRenderer::setup(GLView* glview)
 {
-    JniHelper::callStaticVoidMethod("java/lang/System", "loadLibrary", std::string("deepoon_sdk"));
+    //JniHelper::callStaticVoidMethod("java/lang/System", "loadLibrary", std::string("deepoon_sdk"));
     //_instance = dpnnInit(1, DPNN_UM_DEFAULT, NULL, DPNN_DEVICE_GLES2, JniHelper::getActivity());
     //_headTracker->setdpnnInstance(&_instance);
     
@@ -230,11 +242,7 @@ void VRDeepoonRenderer::cleanup()
 void VRDeepoonRenderer::render(Scene* scene, Renderer* renderer)
 {
     if (!_instance) return;
-    auto position = dpnnGetPosition(_instance);
-    auto pose = dpnnGetPose(_instance);
-    CCLOG("(%f, %f, %f, %f)", pose.i, pose.j, pose.k, pose.s);
     
-    Vec3 pos = _headTracker->getLocalPosition();
     Mat4 headView = _headTracker->getLocalRotation();
     Mat4 transform;
     const dpnHmdParms headModelParms = dpnutilDefaultHmdParms();
@@ -282,10 +290,10 @@ void VRDeepoonRenderer::render(Scene* scene, Renderer* renderer)
     glDepthMask(false);
     glDisable(GL_SCISSOR_TEST);
     
-    glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
     dpnnRecordPose(_instance, DPNN_EYE_COUNT);
     dpnnCompose(_instance);
     dpnnFramebuffer_SetNone();
+    glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
 }
 
 NS_CC_END

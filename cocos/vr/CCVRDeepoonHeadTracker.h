@@ -39,11 +39,11 @@ public:
     virtual Vec3 getLocalPosition() override;
     virtual Mat4 getLocalRotation() override;
     
-    void setdpnnInstance(dpnnInstance *instance) { _instance = instance; }
+    void setdpnnInstance(dpnnInstance instance) { _instance = instance; }
 
 protected:
     
-    dpnnInstance    *_instance;
+    dpnnInstance    _instance;
 };
 
 NS_CC_END

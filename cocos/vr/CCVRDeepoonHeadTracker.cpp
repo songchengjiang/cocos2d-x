@@ -40,14 +40,14 @@ VRDeepoonHeadTracker::~VRDeepoonHeadTracker()
 Vec3 VRDeepoonHeadTracker::getLocalPosition()
 {
     if (!_instance) return Vec3::ZERO;
-    auto pos = dpnnGetPosition(*_instance);
+    auto pos = dpnnGetPosition(_instance);
     return Vec3(pos.x, pos.y, pos.z);
 }
 
 Mat4 VRDeepoonHeadTracker::getLocalRotation()
 {
     if (!_instance) return Mat4::IDENTITY;
-    auto pose = dpnnGetPose(*_instance);
+    auto pose = dpnnGetPose(_instance);
     Mat4 rotMat;
     Mat4::createRotation(Quaternion(pose.i, pose.j, pose.k, pose.s), &rotMat);
     //CCLOG("(%f, %f, %f, %f)", pose.i, pose.j, pose.k, pose.s);

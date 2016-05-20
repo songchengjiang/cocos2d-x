@@ -201,9 +201,14 @@ void Scene::render(Renderer* renderer, const Mat4& eyeTransform)
             defaultCamera = Camera::_visitingCamera;
         }
 
-        Mat4 eyeCopy = camera->getNodeToParentTransform();
-        // eyeTransform is in "camera/view" coordinates. Convert it to "model" coordinates
-        camera->setNodeToParentTransform(eyeCopy * eyeTransform.getInversed());
+        // There are two ways to modify the "default camera" with the eye Transform:
+        // a) modify the "nodeToParentTransform" matrix
+        // b) modify the "additional transform" matrix
+        // both alternatives are correct, if the user manually modifies the camera with a camera->setPosition()
+        // then the "nodeToParent transform" will be lost.
+        // And it is important that the change is "permament", because the matrix might be used for calculate
+        // culling and other stuff.
+        camera->setAdditionalTransform(eyeTransform.getInversed());
 
         director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION);
         director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION, Camera::_visitingCamera->getViewProjectionMatrix());
@@ -224,7 +229,9 @@ void Scene::render(Renderer* renderer, const Mat4& eyeTransform)
 
         director->popMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION);
 
-        camera->setNodeToParentTransform(eyeCopy);
+        // we shouldn't restore the transform matrix since it could be used
+        // from "update" or other parts of the game to calculate culling or something else.
+//        camera->setNodeToParentTransform(eyeCopy);
     }
 
 #if CC_USE_3D_PHYSICS && CC_ENABLE_BULLET_INTEGRATION

@@ -99,24 +99,30 @@ void VRGenericRenderer::cleanup()
 {
 }
 
+VRIHeadTracker* VRGenericRenderer::getHeadTracker()
+{
+    return _headTracker;
+}
+
 void VRGenericRenderer::render(Scene* scene, Renderer* renderer)
 {
     // FIXME: Use correct eye displacement
     const float eyeOffset = 0.5;
 
+    auto headRotation = _headTracker->getLocalRotation();
     Mat4 leftTransform;
-    Mat4::createTranslation(-eyeOffset, 0, 0, &leftTransform);
-    leftTransform *= _headTracker->getLocalRotation();
+    Mat4::createTranslation(eyeOffset, 0, 0, &leftTransform);
+    leftTransform *= headRotation;
 
     Mat4 rightTransform;
-    Mat4::createTranslation(+eyeOffset, 0, 0, &rightTransform);
-    rightTransform *= _headTracker->getLocalRotation();
+    Mat4::createTranslation(-eyeOffset, 0, 0, &rightTransform);
+    rightTransform *= headRotation;
 
     _fb->applyFBO();
     Camera::setDefaultViewport(_leftEye.viewport);
-    scene->render(renderer, &leftTransform, nullptr);
+    scene->render(renderer, leftTransform, nullptr);
     Camera::setDefaultViewport(_rightEye.viewport);
-    scene->render(renderer, &rightTransform, nullptr);
+    scene->render(renderer, rightTransform, nullptr);
     _fb->restoreFBO();
 
     auto texture = _fb->getRenderTarget()->getTexture();

@@ -292,6 +292,11 @@ void VROculusRenderer::cleanup()
     //OVR::System::Dest
 }
 
+VRIHeadTracker* VROculusRenderer::getHeadTracker()
+{
+    return _headTracker;
+}
+
 void VROculusRenderer::render(Scene* scene, Renderer* renderer)
 {
 // 	double           ftiming = ovr_GetPredictedDisplayTime(_HMD, 0);
@@ -328,7 +333,7 @@ void VROculusRenderer::render(Scene* scene, Renderer* renderer)
         _eyeRenderTexture[eye]->SetAndClearRenderSurface(_eyeDepthBuffer[eye]);
         Camera::setDefaultViewport(experimental::Viewport(0, 0, _ld.Viewport[eye].Size.w, _ld.Viewport[eye].Size.h));
         transform *= headView;
-        scene->render(renderer, &transform, &_eyeProjections[eye]);
+        scene->render(renderer, transform.getInversed(), &_eyeProjections[eye]);
         _eyeRenderTexture[eye]->UnsetRenderSurface();
     }
 

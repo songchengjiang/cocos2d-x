@@ -36,16 +36,6 @@ class Scene;
 class Renderer;
 class GLView;
 
-class CC_DLL VRIRenderer
-{
-public:
-    virtual ~VRIRenderer() {}
-
-    virtual void setup(GLView* glview) = 0;
-    virtual void cleanup() = 0;
-    virtual void render(Scene* scene, Renderer* renderer) = 0;
-};
-
 class CC_DLL VRIHeadTracker
 {
 public:
@@ -56,6 +46,18 @@ public:
     // rotation
     virtual Mat4 getLocalRotation() = 0;
 };
+
+class CC_DLL VRIRenderer
+{
+public:
+    virtual ~VRIRenderer() {}
+
+    virtual void setup(GLView* glview) = 0;
+    virtual void cleanup() = 0;
+    virtual void render(Scene* scene, Renderer* renderer) = 0;
+    virtual VRIHeadTracker* getHeadTracker() = 0;
+};
+
 
 NS_CC_END
 

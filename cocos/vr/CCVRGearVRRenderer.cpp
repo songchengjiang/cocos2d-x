@@ -240,6 +240,11 @@ void VRGearVRRenderer::cleanup()
     vrapi_Shutdown();
 }
 
+VRIHeadTracker* cocos2d::VRGearVRRenderer::getHeadTracker()
+{
+    return _headTracker;
+}
+
 void VRGearVRRenderer::render(Scene* scene, Renderer* renderer)
 {
     if (!_ovr) return;
@@ -274,7 +279,7 @@ void VRGearVRRenderer::render(Scene* scene, Renderer* renderer)
         const float eyeOffset = ( i ? -0.5f : 0.5f ) * headModelParms.InterpupillaryDistance;
         Mat4::createTranslation(eyeOffset, 0, 0, &transform);
         transform *= headView;
-        scene->render(renderer, &transform, &_eyeProjection);
+        scene->render(renderer, transform.getInversed(), &_eyeProjection);
         
         // Explicitly clear the border texels to black because OpenGL-ES does not support GL_CLAMP_TO_BORDER.
         {

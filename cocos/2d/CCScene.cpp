@@ -184,7 +184,7 @@ const std::vector<Camera*>& Scene::getCameras()
     return _cameras;
 }
 
-void Scene::render(Renderer* renderer, const Mat4* eyeTransform, const Mat4* eyeProjection)
+void Scene::render(Renderer* renderer, const Mat4& eyeTransform, const Mat4* eyeProjection)
 {
     auto director = Director::getInstance();
     Camera* defaultCamera = nullptr;
@@ -200,14 +200,17 @@ void Scene::render(Renderer* renderer, const Mat4* eyeTransform, const Mat4* eye
         {
             defaultCamera = Camera::_visitingCamera;
         }
-        if (eyeTransform){
-            Mat4 eyeCopy = *eyeTransform;
-            camera->setAdditionalTransform(&eyeCopy);
-        }
-        
-        if (eyeProjection){
-            camera->setAdditionalProjection((*eyeProjection) * camera->getProjectionMatrix().getInversed());
-        }
+
+        // There are two ways to modify the "default camera" with the eye Transform:
+        // a) modify the "nodeToParentTransform" matrix
+        // b) modify the "additional transform" matrix
+        // both alternatives are correct, if the user manually modifies the camera with a camera->setPosition()
+        // then the "nodeToParent transform" will be lost.
+        // And it is important that the change is "permament", because the matrix might be used for calculate
+        // culling and other stuff.
+        camera->setAdditionalTransform(eyeTransform.getInversed());
+        if (eyeProjection)
+            camera->setAdditionalProjection(*eyeProjection * camera->getProjectionMatrix().getInversed());
 
         director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION);
         director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION, Camera::_visitingCamera->getViewProjectionMatrix());
@@ -228,8 +231,9 @@ void Scene::render(Renderer* renderer, const Mat4* eyeTransform, const Mat4* eye
 
         director->popMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION);
 
-        if (eyeTransform)
-            camera->setAdditionalTransform(nullptr);
+        // we shouldn't restore the transform matrix since it could be used
+        // from "update" or other parts of the game to calculate culling or something else.
+//        camera->setNodeToParentTransform(eyeCopy);
     }
 
 #if CC_USE_3D_PHYSICS && CC_ENABLE_BULLET_INTEGRATION

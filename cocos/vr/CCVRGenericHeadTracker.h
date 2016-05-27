@@ -1,4 +1,5 @@
 /****************************************************************************
+ Copyright (c) 2016 Google Inc.
  Copyright (c) 2016 Chukong Technologies Inc.
 
  http://www.cocos2d-x.org
@@ -45,9 +46,10 @@ protected:
     void stopTracking();
 
     Vec3 _localPosition;
-    Mat4 _localRotation;
 
-    Mat4 _displayFromDevice;
+    Mat4 _deviceToDisplay;
+    Mat4 _worldToInertialReferenceFrame;
+
     void* _motionMgr;
 };
 

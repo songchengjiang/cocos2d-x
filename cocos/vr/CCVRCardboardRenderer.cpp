@@ -73,6 +73,11 @@ void VRCardboardRenderer::cleanup()
     cbapi_LeaveVrMode();
 }
 
+VRIHeadTracker* VRCardboardRenderer::getHeadTracker()
+{
+    return _headTracker;
+}
+
 void VRCardboardRenderer::render(Scene* scene, Renderer* renderer)
 {
     Mat4 headView = _headTracker->getLocalRotation();
@@ -91,7 +96,7 @@ void VRCardboardRenderer::render(Scene* scene, Renderer* renderer)
         const float eyeOffset = ( i ? -0.5f : 0.5f ) * _hmd.device.interLensDistance;
         Mat4::createTranslation(eyeOffset, 0, 0, &transform);
         transform *= headView;
-        scene->render(renderer, &transform, &_eyeProjections[i]);
+        scene->render(renderer, transform.getInversed(), &_eyeProjections[i]);
         
         // Explicitly clear the border texels to black because OpenGL-ES does not support GL_CLAMP_TO_BORDER.
         {

@@ -48,6 +48,7 @@ public:
     virtual void setup(GLView* glview);
     virtual void cleanup();
     virtual void render(Scene* scene, Renderer* renderer);
+    virtual VRIHeadTracker* getHeadTracker();
 
 protected:
 

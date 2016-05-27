@@ -61,6 +61,7 @@ public:
 protected:
     
     dpnnFramebuffer _frameBuffer[EYE_NUM];
+    Mat4            _eyeProjection;
     dpnnInstance    _instance;
     VRDeepoonHeadTracker *_headTracker;
 };

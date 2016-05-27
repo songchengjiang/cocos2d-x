@@ -48,6 +48,7 @@ protected:
     cbHeadMountedDisplay _hmd;
     cbEyes               _eyes;
     VRCardboardHeadTracker *_headTracker;
+    Mat4                 _eyeProjections[CB_EYE_NUM];
 };
 
 NS_CC_END

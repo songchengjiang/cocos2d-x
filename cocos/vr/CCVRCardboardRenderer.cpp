@@ -34,6 +34,7 @@
 #include "2d/CCSprite.h"
 #include "platform/CCGLView.h"
 #include "platform/android/jni/JniHelper.h"
+#include "vr/cardboard/CbApi_Helpers.h"
 
 
 NS_CC_BEGIN
@@ -50,13 +51,19 @@ VRCardboardRenderer::~VRCardboardRenderer()
 
 void VRCardboardRenderer::setup(GLView* glview)
 {
-    CCLOG("JNIENV: 0x%x, ACTIVITY: 0x%x, JAVAVM: 0x%x", (int)JniHelper::getEnv(), (int)JniHelper::getActivity(), (int)JniHelper::getJavaVM());
     cbJava java;
     java.ActivityObject = JniHelper::getEnv()->NewGlobalRef(JniHelper::getActivity());
     java.Env = JniHelper::getEnv();
     JniHelper::getEnv()->GetJavaVM(&java.Vm);
     if (cbapi_Initialize(&java, &_hmd)){
         _eyes = cbapi_GetEyes();
+    }
+    
+    for (unsigned short i = 0; i < CB_EYE_NUM; ++i){
+        float suggestedEyeFovDegreesX = _eyes.eyeParams[i].fov.left + _eyes.eyeParams[i].fov.right;
+        float suggestedEyeFovDegreesY = _eyes.eyeParams[i].fov.bottom + _eyes.eyeParams[i].fov.top;
+        auto proejction = cbMatrix4_CreateProjectionFov(suggestedEyeFovDegreesX, suggestedEyeFovDegreesY, 0.0f, 0.0f, CBAPI_ZNEAR, 5000.0f);
+        _eyeProjections[i].set((const GLfloat *)(cbMatrix4_Transpose(&proejction).M[0]));
     }
     cbapi_EnterVrMode();
 }
@@ -75,7 +82,6 @@ void VRCardboardRenderer::render(Scene* scene, Renderer* renderer)
     
     cbapi_beforeDrawFrame();
     glEnable(GL_SCISSOR_TEST);
-    glDepthMask(true);
     for (unsigned short i = 0; i < CB_EYE_NUM; ++i){
         auto vp = _eyes.eyeParams[i].viewport;
         Camera::setDefaultViewport(experimental::Viewport(vp.x, vp.y, vp.width, vp.height));
@@ -85,7 +91,7 @@ void VRCardboardRenderer::render(Scene* scene, Renderer* renderer)
         const float eyeOffset = ( i ? -0.5f : 0.5f ) * _hmd.device.interLensDistance;
         Mat4::createTranslation(eyeOffset, 0, 0, &transform);
         transform *= headView;
-        scene->render(renderer, transform);
+        scene->render(renderer, &transform, &_eyeProjections[i]);
         
         // Explicitly clear the border texels to black because OpenGL-ES does not support GL_CLAMP_TO_BORDER.
         {
@@ -105,7 +111,6 @@ void VRCardboardRenderer::render(Scene* scene, Renderer* renderer)
             glClear(GL_COLOR_BUFFER_BIT);
         }
     }
-    glDepthMask(false);
     glDisable(GL_SCISSOR_TEST);
     cbapi_afterDrawFrame();
     

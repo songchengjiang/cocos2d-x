@@ -62,6 +62,7 @@ protected:
     
     ovrFramebuffer _frameBuffer[EYE_NUM];
     ovrMatrix4f    _projection;
+    Mat4           _eyeProjection;
     ovrJava    _java;
     ovrMobile *_ovr;
     long long  _frameIndex;

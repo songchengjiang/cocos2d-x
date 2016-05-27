@@ -62,8 +62,8 @@ void VRCardboardRenderer::setup(GLView* glview)
     for (unsigned short i = 0; i < CB_EYE_NUM; ++i){
         float suggestedEyeFovDegreesX = _eyes.eyeParams[i].fov.left + _eyes.eyeParams[i].fov.right;
         float suggestedEyeFovDegreesY = _eyes.eyeParams[i].fov.bottom + _eyes.eyeParams[i].fov.top;
-        auto proejction = cbMatrix4_CreateProjectionFov(suggestedEyeFovDegreesX, suggestedEyeFovDegreesY, 0.0f, 0.0f, CBAPI_ZNEAR, 5000.0f);
-        _eyeProjections[i].set((const GLfloat *)(cbMatrix4_Transpose(&proejction).M[0]));
+        auto projection = cbMatrix4_CreateProjectionFov(suggestedEyeFovDegreesX, suggestedEyeFovDegreesY, 0.0f, 0.0f, CBAPI_ZNEAR, 5000.0f);
+        _eyeProjections[i].set((const GLfloat *)(cbMatrix4_Transpose(&projection).M[0]));
     }
     cbapi_EnterVrMode();
 }

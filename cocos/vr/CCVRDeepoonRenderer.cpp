@@ -216,8 +216,8 @@ void VRDeepoonRenderer::setup(GLView* glview)
                                                                         _headTracker->setdpnnInstance(_instance);
                                                                         dpnnDeviceInfo dInfo;
                                                                         dpnnGetDeviceInfo(_instance, &dInfo);
-                                                                        auto proejction = dpnutilMatrix4_CreateProjectionFov(CC_DEGREES_TO_RADIANS(dInfo.fov_x), CC_DEGREES_TO_RADIANS(dInfo.fov_y), 0.0f, 0.0f, 0.1f, 5000.0f);
-                                                                        _eyeProjection.set((const GLfloat *)(dpnutilMatrix4_Transpose(&proejction).M[0]));
+                                                                        auto projection = dpnutilMatrix4_CreateProjectionFov(CC_DEGREES_TO_RADIANS(dInfo.fov_x), CC_DEGREES_TO_RADIANS(dInfo.fov_y), 0.0f, 0.0f, 0.1f, 5000.0f);
+                                                                        _eyeProjection.set((const GLfloat *)(dpnutilMatrix4_Transpose(&projection).M[0]));
                                                                     }
                                                                 }
                                                                 );

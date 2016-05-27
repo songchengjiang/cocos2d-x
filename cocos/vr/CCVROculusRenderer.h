@@ -54,6 +54,7 @@ protected:
     TextureBuffer   *_eyeRenderTexture[EYE_NUM];
     DepthBuffer     *_eyeDepthBuffer[EYE_NUM];
     ovrEyeRenderDesc _eyeRenderDesc[EYE_NUM];
+    Mat4             _eyeProjections[EYE_NUM];
     GLuint           _mirrorFBO;
     ovrGLTexture    *_mirrorTexture;
     ovrHmd           _HMD;

@@ -298,10 +298,6 @@ LOCAL_STATIC_LIBRARIES += spine_static
 LOCAL_STATIC_LIBRARIES += cocos_network_static
 LOCAL_STATIC_LIBRARIES += audioengine_static
 
-LOCAL_SHARED_LIBRARIES := vrapi
-LOCAL_SHARED_LIBRARIES += deepoon_sdk
-LOCAL_SHARED_LIBRARIES += gvr
-
 include $(BUILD_STATIC_LIBRARY)
 #==============================================================
 $(call import-module,freetype2/prebuilt/android)

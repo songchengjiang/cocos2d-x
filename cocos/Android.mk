@@ -215,15 +215,6 @@ navmesh/CCNavMeshDebugDraw.cpp \
 navmesh/CCNavMeshObstacle.cpp \
 navmesh/CCNavMeshUtils.cpp \
 vr/CCVRGenericRenderer.cpp \
-vr/CCVRGearVRRenderer.cpp \
-vr/CCVRGearVRHeadTracker.cpp \
-vr/CCVRDeepoonRenderer.cpp \
-vr/CCVRDeepoonHeadTracker.cpp \
-vr/CCVRCardboardRenderer.cpp \
-vr/CCVRCardboardHeadTracker.cpp \
-vr/cardboard/CbApi.cpp \
-vr/CCVRGvrRenderer.cpp \
-vr/CCVRGvrHeadTracker.cpp \
 ../external/ConvertUTF/ConvertUTFWrapper.cpp \
 ../external/ConvertUTF/ConvertUTF.c \
 ../external/tinyxml2/tinyxml2.cpp \
@@ -332,9 +323,6 @@ $(call import-module,extensions)
 $(call import-module,Box2D)
 $(call import-module,bullet)
 $(call import-module,recast)
-$(call import-module,gearvr/prebuild)
-$(call import-module,deepoon/prebuild)
-$(call import-module,gvr/prebuild)
 # $(call import-module,curl/prebuilt/android)
 $(call import-module,websockets/prebuilt/android)
 $(call import-module,flatbuffers)

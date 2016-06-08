@@ -46,9 +46,9 @@ Mat4 VRGvrHeadTracker::getLocalRotation()
 {
     auto &m = _headPose.rotation.m;
     Mat4 rotMat;
-    rotMat.set(m[0][0], m[1][0], m[2][0], 0.0f
-             , m[0][1], m[1][1], m[2][1], 0.0f
-             , m[0][2], m[1][2], m[2][2], 0.0f
+    rotMat.set(m[0][0], m[0][1], m[0][2], 0.0f
+             , m[1][0], m[1][1], m[1][2], 0.0f
+             , m[2][0], m[2][1], m[2][2], 0.0f
              ,    0.0f,    0.0f,    0.0f, 1.0f);
     return rotMat;
 }

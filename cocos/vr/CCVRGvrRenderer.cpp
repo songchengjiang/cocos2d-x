@@ -106,20 +106,8 @@ VRGvrRenderer::~VRGvrRenderer()
 
 void VRGvrRenderer::setup(GLView* glview)
 {
-    //_gvrApi = gvr::GvrApi::WrapNonOwned(gvr_context);
+    _gvrApi = gvr::GvrApi::WrapNonOwned(reinterpret_cast<gvr_context *>(JniHelper::gvrContext));
     _headTracker->setGvrApi(_gvrApi.get());
-    _renderSize = _gvrApi->GetRecommendedRenderTargetSize();
-    
-    _framebufferHandle.reset(new gvr::OffscreenFramebufferHandle(_gvrApi->CreateOffscreenFramebuffer(_renderSize)));
-    _renderParamsList.reset(new gvr::RenderParamsList(_gvrApi->CreateEmptyRenderParamsList()));
-    _renderParamsList->SetToRecommendedRenderParams();
-    
-    for (unsigned short i = 0; i < GVR_NUM_EYES; ++i){
-        auto params = _renderParamsList->GetRenderParams(i);
-        auto projection = PerspectiveMatrixFromView(params.eye_fov, 0.1f, 5000.0f);
-        _eyeProjections[i].set((const GLfloat *)(projection.m[0]));
-        _eyeProjections[i].transpose();
-    }
     
     auto backToForegroundListener = EventListenerCustom::create(EVENT_COME_TO_FOREGROUND,
                                                                 [=](EventCustom*)
@@ -152,7 +140,21 @@ VRIHeadTracker* VRGvrRenderer::getHeadTracker()
 
 void VRGvrRenderer::render(Scene* scene, Renderer* renderer)
 {
-    if (!_gvrApi) return;
+    if (!_gvrApi.get()) return;
+    
+    if (!_framebufferHandle.get()){
+        _gvrApi->InitializeGl();
+        _renderSize = _gvrApi->GetRecommendedRenderTargetSize();
+        _framebufferHandle.reset(new gvr::OffscreenFramebufferHandle(_gvrApi->CreateOffscreenFramebuffer(_renderSize)));
+        _renderParamsList.reset(new gvr::RenderParamsList(_gvrApi->CreateEmptyRenderParamsList()));
+        _renderParamsList->SetToRecommendedRenderParams();
+        for (unsigned short i = 0; i < GVR_NUM_EYES; ++i){
+            auto params = _renderParamsList->GetRenderParams(i);
+            auto projection = PerspectiveMatrixFromView(params.eye_fov, 0.1f, 5000.0f);
+            _eyeProjections[i].set((const GLfloat *)(projection.m[0]));
+            _eyeProjections[i].transpose();
+        }
+    }
     
     gvr::ClockTimePoint target_time = gvr::GvrApi::GetTimePointNow();
     target_time.monotonic_system_time_nanos += kPredictionTimeWithoutVsyncNanos;

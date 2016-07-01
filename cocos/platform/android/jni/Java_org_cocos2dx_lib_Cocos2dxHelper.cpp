@@ -77,6 +77,10 @@ extern "C" {
         }
     }
 
+    JNIEXPORT void JNICALL Java_org_cocos2dx_lib_Cocos2dxHelper_nativeSetGvrContext(JNIEnv*  env, jobject thiz, jlong nativeGvrContext) {
+        JniHelper::gvrContext = nativeGvrContext;
+    }
+
 }
 
 const char * getApkPath() {

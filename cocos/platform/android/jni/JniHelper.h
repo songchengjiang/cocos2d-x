@@ -64,6 +64,7 @@ public:
     static jmethodID loadclassMethod_methodID;
     static jobject classloader;
     static std::function<void()> classloaderCallback;
+    static jlong gvrContext;
 
     template <typename... Ts>
     static void callStaticVoidMethod(const std::string& className, 

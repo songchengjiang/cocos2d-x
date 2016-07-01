@@ -68,6 +68,7 @@ namespace cocos2d {
     jmethodID JniHelper::loadclassMethod_methodID = nullptr;
     jobject JniHelper::classloader = nullptr;
     std::function<void()> JniHelper::classloaderCallback = nullptr;
+    jlong JniHelper::gvrContext = 0;
     
     jobject JniHelper::_activity = nullptr;
     std::unordered_map<JNIEnv*, std::vector<jobject>> JniHelper::localRefs;

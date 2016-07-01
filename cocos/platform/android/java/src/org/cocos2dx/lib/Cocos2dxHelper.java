@@ -164,6 +164,8 @@ public class Cocos2dxHelper {
 
     private static native void nativeSetContext(final Context pContext, final AssetManager pAssetManager);
 
+    public static native void nativeSetGvrContext(final long nativeGvrContext);
+
     public static String getCocos2dxPackageName() {
         return Cocos2dxHelper.sPackageName;
     }

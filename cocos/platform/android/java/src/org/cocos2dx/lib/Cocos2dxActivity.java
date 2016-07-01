@@ -38,6 +38,7 @@ import android.os.Message;
 import android.preference.PreferenceManager.OnActivityResultListener;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
@@ -48,6 +49,10 @@ import org.cocos2dx.lib.Cocos2dxHelper.Cocos2dxHelperListener;
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.egl.EGLDisplay;
+
+import com.google.vr.ndk.base.AndroidCompat;
+import com.google.vr.ndk.base.GvrLayout;
+import com.google.vr.ndk.base.GvrUiLayout;
 
 public abstract class Cocos2dxActivity extends Activity implements Cocos2dxHelperListener {
     // ===========================================================
@@ -316,8 +321,19 @@ public abstract class Cocos2dxActivity extends Activity implements Cocos2dxHelpe
     private void resumeIfHasFocus() {
         if(hasFocus) {
         	Cocos2dxHelper.onResume();
+            mFrameLayout.onResume();
         	mGLSurfaceView.onResume();
+            setImmersiveSticky();
         }
+    }
+
+    private void setImmersiveSticky() {
+        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
     }
 
     @Override
@@ -326,11 +342,13 @@ public abstract class Cocos2dxActivity extends Activity implements Cocos2dxHelpe
         super.onPause();
         Cocos2dxHelper.onPause();
         mGLSurfaceView.onPause();
+        mFrameLayout.onPause();
     }
     
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        mFrameLayout.shutdown();
     }
 
     @Override
@@ -380,13 +398,41 @@ public abstract class Cocos2dxActivity extends Activity implements Cocos2dxHelpe
         edittext.setLayoutParams(edittext_layout_params);
 
 
-        mFrameLayout.addView(edittext);
+        //mFrameLayout.addView(edittext);
 
         // Cocos2dxGLSurfaceView
         this.mGLSurfaceView = this.onCreateView();
 
-        // ...add to FrameLayout
-        mFrameLayout.addView(this.mGLSurfaceView);
+//        // ...add to FrameLayout
+//        mFrameLayout.addView(this.mGLSurfaceView);
+
+//------------------------------------------ADDED FOR VR-----------------------------------------
+        setImmersiveSticky();
+        getWindow()
+                .getDecorView()
+                .setOnSystemUiVisibilityChangeListener(
+                        new View.OnSystemUiVisibilityChangeListener() {
+                            @Override
+                            public void onSystemUiVisibilityChange(int visibility) {
+                                if ((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0) {
+                                    setImmersiveSticky();
+                                }
+                            }
+                        });
+        this.mGLSurfaceView.setPreserveEGLContextOnPause(true);
+        mFrameLayout.setPresentationView(this.mGLSurfaceView);
+        mFrameLayout.addView(new GvrUiLayout(this));
+//        // Enable scan line racing.
+//        if (mFrameLayout.setScanlineRacingEnabled(true)) {
+//            // Scanline racing decouples the app framerate from the display framerate,
+//            // allowing immersive interaction even at the throttled clockrates set by
+//            // sustained performance mode.
+//            AndroidCompat.setSustainedPerformanceMode(this, true);
+//        }
+        // Enable VR Mode.
+        AndroidCompat.setVrModeEnabled(this, true);
+        Cocos2dxHelper.nativeSetGvrContext(mFrameLayout.getGvrApi().getNativeGvrContext());
+//------------------------------------------ADDED FOR VR-----------------------------------------
 
         // Switch to supported OpenGL (ARGB888) mode on emulator
         if (isAndroidEmulator())

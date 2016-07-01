@@ -112,8 +112,10 @@ void VRGvrRenderer::setup(GLView* glview)
     auto backToForegroundListener = EventListenerCustom::create(EVENT_COME_TO_FOREGROUND,
                                                                 [=](EventCustom*)
                                                                 {
-                                                                    _gvrApi->RefreshViewerProfile();
-                                                                    _gvrApi->ResumeTracking();
+                                                                    if (_gvrApi.get()){
+                                                                        _gvrApi->RefreshViewerProfile();
+                                                                        _gvrApi->ResumeTracking();
+                                                                    }
                                                                 }
                                                                 );
     Director::getInstance()->getEventDispatcher()->addEventListenerWithFixedPriority(backToForegroundListener, -1);
@@ -122,7 +124,9 @@ void VRGvrRenderer::setup(GLView* glview)
     auto foregroundToBackListener = EventListenerCustom::create(EVENT_COME_TO_BACKGROUND,
                                                                 [=](EventCustom*)
                                                                 {
-                                                                    _gvrApi->PauseTracking();
+                                                                    if (_gvrApi.get()) {
+                                                                        _gvrApi->PauseTracking();
+                                                                    }
                                                                 }
                                                                 );
     Director::getInstance()->getEventDispatcher()->addEventListenerWithFixedPriority(foregroundToBackListener, -1);

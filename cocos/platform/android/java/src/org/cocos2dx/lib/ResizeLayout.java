@@ -28,7 +28,9 @@ import android.os.Handler;
 import android.util.AttributeSet;
 import android.widget.FrameLayout;
 
-public class ResizeLayout extends FrameLayout {
+import com.google.vr.ndk.base.GvrLayout;
+
+public class ResizeLayout extends GvrLayout {
     private  boolean mEnableForceDoLayout = false;
 
     public ResizeLayout(Context context){
@@ -36,7 +38,7 @@ public class ResizeLayout extends FrameLayout {
     }
 
     public ResizeLayout(Context context, AttributeSet attrs) {
-        super(context, attrs);
+        super(context, attrs, 0, 0);
     }
 
     public void setEnableForceDoLayout(boolean flag){

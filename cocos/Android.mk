@@ -194,6 +194,8 @@ vr/CCVRDistortion.cpp \
 vr/CCVRDistortionMesh.cpp \
 vr/CCVRGenericRenderer.cpp \
 vr/CCVRGenericHeadTracker.cpp \
+vr/gearvr-sdk/CCVRGearVRRenderer.cpp \
+vr/gearvr-sdk/CCVRGearVRHeadTracker.cpp \
 deprecated/CCArray.cpp \
 deprecated/CCDeprecated.cpp \
 deprecated/CCDictionary.cpp \
@@ -301,6 +303,8 @@ LOCAL_STATIC_LIBRARIES += spine_static
 LOCAL_STATIC_LIBRARIES += cocos_network_static
 LOCAL_STATIC_LIBRARIES += audioengine_static
 
+LOCAL_SHARED_LIBRARIES := vrapi
+
 include $(BUILD_STATIC_LIBRARY)
 #==============================================================
 $(call import-module,freetype2/prebuilt/android)
@@ -325,3 +329,4 @@ $(call import-module,recast)
 # $(call import-module,curl/prebuilt/android)
 $(call import-module,websockets/prebuilt/android)
 $(call import-module,flatbuffers)
+$(call import-module,vr/gearvr-sdk/VrApi/Projects/AndroidPrebuilt/jni)

@@ -303,6 +303,7 @@ THE SOFTWARE.
 
 // vr
 #include "vr/CCVRGenericRenderer.h"
+#include "vr/gearvr-sdk/CCVRGearVRRenderer.h"
 
 
 // Deprecated
